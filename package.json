@@ -1,14 +1,14 @@
 {
-  "name": "@iotracks/iotracks-container-sdk-nodejs",
-  "version": "0.0.20",
-  "description": "Native node.js SDK for ioTracks development",
-  "main": "index.js",
+  "name": "@iotracks/container-sdk-nodejs",
+  "version": "1.0.0",
+  "description": "Native node.js SDK for ioTracks development.",
+  "main": "ioFabricClient.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iotracks/container-sdk-nodejs.git"
+    "url": "https://github.com/iotracks/container-sdk-nodejs.git"
   },
   "author": "ioTracks",
   "license": "ISC",

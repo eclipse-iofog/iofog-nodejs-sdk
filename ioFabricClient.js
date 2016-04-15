@@ -15,8 +15,8 @@ const OPCODE_RECEIPT = 0xE;
 
 var request = require('request');
 var WebSocket = require('ws');
-var ioMessageUtil = require('./ioMessageUtil.js');
-var byteUtils = require('./byteUtils.js');
+var ioMessageUtil = require('./lib/ioMessageUtil.js');
+var byteUtils = require('./lib/byteUtils.js');
 
 var ELEMENT_ID = "UNKNOWN_IO_TRACKS_CONTEINER_UIID"; // publisher's ID
 var SSL = false;

@@ -15,7 +15,7 @@
 
 'use strict';
 
-var ioFabricClient = module.exports = require('./lib/ioFabricClient.js');
+var ioFabricClient = module.exports = require('./ioFabricClient.js');
 
 ioFabricClient.settings('127.0.0.1', 10500, null);
 
