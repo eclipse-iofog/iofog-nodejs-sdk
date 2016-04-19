@@ -1,6 +1,6 @@
 {
   "name": "@iotracks/container-sdk-nodejs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Native node.js SDK for ioTracks development.",
   "main": "ioFabricClient.js",
   "scripts": {
