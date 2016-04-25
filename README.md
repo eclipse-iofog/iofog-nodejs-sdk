@@ -17,7 +17,7 @@ import module:
   var ioFabricClient = module.exports = require('@iotracks/container-sdk-nodejs');
 ```
 
-set up custom host, port and contaoner's ID:
+set up custom host, port and container's ID (in case of no params default values for host and port will be used: 'iofabric', 54321):
 ```
   ioFabricClient.settings('iofabric', 54321, null);
 ```
