@@ -15,6 +15,7 @@ const OPCODE_RECEIPT = 0xE;
 
 var request = require('request');
 var WebSocket = require('ws');
+var ping = require('ping');
 var ioMessageUtil = require('./lib/ioMessageUtil.js');
 var byteUtils = require('./lib/byteUtils.js');
 
@@ -31,8 +32,9 @@ var ws; // WebSocket variable
  * @param host - host' string name
  * @param port - port's number
  * @param containerId - container's ID
+ * @param mainCb - main function to perform when all set up and checks are done
  */
-exports.settings = function(shost, sport, containerId) {
+exports.init = function(shost, sport, containerId, mainCb) {
     var options = processArgs(process.argv);
 
     if(options['--id']){ ioFabricClient.ELEMENT_ID = options['--id']; };
@@ -44,6 +46,14 @@ exports.settings = function(shost, sport, containerId) {
     if(!(!shost || !shost.trim())){ host = shost; }
     if(!(!sport || sport<=0)){ port = sport; }
     if(!(!containerId || !containerId.trim())) { ELEMENT_ID = containerId; }
+
+    ping.sys.probe(host, function(isAlive){
+        if(!isAlive){
+            console.log("Host:" + host + " is not reachable. Changing to '127.0.0.1'");
+            host = '127.0.0.1';
+        }
+        mainCb();
+    });
 };
 
 /**
@@ -137,7 +147,7 @@ exports.getMessagesByQuery = function(startdate, enddate, publishers, cb) {
 exports.getConfig = function(cb) {
     makeHttpRequest(cb, "/v2/config/get", {id:ELEMENT_ID},
         function(body){
-            if (body.config) { cb.onNewConfig(body.config); }
+            if (body.config) { cb.onNewConfig(JSON.parse(body.config)); }
         }
     );
 }
@@ -294,14 +304,18 @@ function getEndpointURL(protocol, url){
 function makeHttpRequest(listenerCb, url, json, processCb) {
     var url = getHttpURL(url);
     request.post({
-        url:url,
+        url: url,
         headers: {
             'Content-Type': 'application/json'
         },
-        json:json
+        json: json
     }, function (err, resp, body) {
-        if (err) { return listenerCb.onError(err); }
-        if (resp.statusCode == 400) { return listenerCb.onBadRequest(body); }
+        if (err) {
+            return listenerCb.onError(err);
+        }
+        if (resp.statusCode == 400) {
+            return listenerCb.onBadRequest(body);
+        }
         processCb(body);
     });
 }
