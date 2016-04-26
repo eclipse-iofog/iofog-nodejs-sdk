@@ -19,7 +19,7 @@ var ping = require('ping');
 var ioMessageUtil = require('./lib/ioMessageUtil.js');
 var byteUtils = require('./lib/byteUtils.js');
 
-var ELEMENT_ID = "UNKNOWN_IO_TRACKS_CONTEINER_UIID"; // publisher's ID
+var ELEMENT_ID = "NOT_DEFINED"; // publisher's ID
 var SSL = false;
 var host = "iofabric";
 var port = 54321;
@@ -37,11 +37,11 @@ var ws; // WebSocket variable
 exports.init = function(shost, sport, containerId, mainCb) {
     var options = processArgs(process.argv);
 
-    if(options['--id']){ ioFabricClient.ELEMENT_ID = options['--id']; };
+    if(options['--id']){ ELEMENT_ID = options['--id']; };
 
-    if(process.env.SELFNAME){ ioFabricClient.ELEMENT_ID = process.env.SELFNAME; };
+    if(process.env.SELFNAME){ ELEMENT_ID = process.env.SELFNAME; };
 
-    if(process.env.SSL){ ioFabricClient.SSL = true; };
+    if(process.env.SSL){ SSL = true; };
 
     if(!(!shost || !shost.trim())){ host = shost; }
     if(!(!sport || sport<=0)){ port = sport; }

@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/iotracks/container-sdk-nodejs#readme",
   "dependencies": {
-    "ws": "1.0.1",
-    "request": "2.70.0"
+    "ws": "1.0.2",
+    "request": "2.70.0",
+    "ping":"1.4.1"
   }
 }
