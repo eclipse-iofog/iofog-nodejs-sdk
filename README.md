@@ -17,9 +17,14 @@ import module:
   var ioFabricClient = module.exports = require('@iotracks/container-sdk-nodejs');
 ```
 
-set up custom host, port and container's ID (in case of no params default values for host and port will be used: 'iofabric', 54321):
+set up custom host, port and container's ID (in case of no params default values for host and port will be used: 'iofabric', 54321)
+and pass main callback to trigger when ioFabricClient initialization is done:
 ```
-  ioFabricClient.settings('iofabric', 54321, null);
+  ioFabricClient.init('iofabric', 54321, null,
+    function (){
+        // any code to perform after ioFabric is initialized
+    }
+  );
 ```
 
 #### REST calls
