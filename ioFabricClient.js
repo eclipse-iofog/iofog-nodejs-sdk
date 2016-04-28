@@ -189,7 +189,7 @@ exports.wsMessageConnection = function( sendMsgCb, cb) {
                     pos += 4;
                     var bytes = data.slice(pos, msgLength + pos);
                     var msg = ioMessageUtil.ioMessageFromBuffer(bytes);
-                    cb.onMessages(msg);
+                    cb.onMessages([msg]);
                     sendAck();
                 } else if(opcode == OPCODE_RECEIPT) {
                     var size = data[1];
