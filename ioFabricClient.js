@@ -47,13 +47,14 @@ exports.init = function(shost, sport, containerId, mainCb) {
     if(!(!sport || sport<=0)){ port = sport; }
     if(!(!containerId || !containerId.trim())) { ELEMENT_ID = containerId; }
 
-    ping.sys.probe(host, function(isAlive){
+    /*ping.sys.probe(host, function(isAlive){
         if(!isAlive){
             console.log("Host:" + host + " is not reachable. Changing to '127.0.0.1'");
             host = '127.0.0.1';
         }
         mainCb();
-    });
+    });*/
+    mainCb();
 };
 
 /**
