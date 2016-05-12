@@ -15,7 +15,7 @@ const OPCODE_RECEIPT = 0xE;
 
 var request = require('request');
 var WebSocket = require('ws');
-var ping = require('ping');
+var exec = require('child_process').exec;
 var ioMessageUtil = require('./lib/ioMessageUtil.js');
 var byteUtils = require('./lib/byteUtils.js');
 
@@ -47,14 +47,13 @@ exports.init = function(shost, sport, containerId, mainCb) {
     if(!(!sport || sport<=0)){ port = sport; }
     if(!(!containerId || !containerId.trim())) { ELEMENT_ID = containerId; }
 
-    /*ping.sys.probe(host, function(isAlive){
-        if(!isAlive){
+    exec("ping -c 3 " + host, function (error, stdout, stderr) {
+        if(stderr != '' || !error){
             console.log("Host:" + host + " is not reachable. Changing to '127.0.0.1'");
             host = '127.0.0.1';
         }
         mainCb();
-    });*/
-    mainCb();
+    });
 };
 
 /**
