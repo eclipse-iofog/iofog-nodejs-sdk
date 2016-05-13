@@ -48,7 +48,7 @@ exports.init = function(shost, sport, containerId, mainCb) {
     if(!(!containerId || !containerId.trim())) { ELEMENT_ID = containerId; }
 
     exec("ping -c 3 " + host, function (error, stdout, stderr) {
-        if(stderr != '' || !error){
+        if(stderr != '' || error!==null){
             console.log("Host:" + host + " is not reachable. Changing to '127.0.0.1'");
             host = '127.0.0.1';
         }
