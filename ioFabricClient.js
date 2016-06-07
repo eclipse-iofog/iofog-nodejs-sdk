@@ -24,7 +24,8 @@ var SSL = false;
 var host = "iofabric";
 var port = 54321;
 
-var ws; // WebSocket variable
+var wsMessage;
+var wsControl;
 
 /**
  * Sets custom host and port for connection (if no argument is specified will use the default values).
@@ -47,7 +48,7 @@ exports.init = function(shost, sport, containerId, mainCb) {
     if(!(!sport || sport<=0)){ port = sport; }
     if(!(!containerId || !containerId.trim())) { ELEMENT_ID = containerId; }
 
-    exec("ping -c 3 " + host, function (error, stdout, stderr) {
+    exec("ping -c 3 " + host, function checkHost(error, stdout, stderr) {
         if(stderr != '' || error!==null){
             console.log("Host:" + host + " is not reachable. Changing to '127.0.0.1'");
             host = '127.0.0.1';
@@ -92,7 +93,7 @@ exports.ioMessage = function(tag, groupid, sequencenumber, sequencetotal, priori
  */
 exports.sendNewMessage = function(ioMsg, cb) {
     makeHttpRequest(cb, "/v2/messages/new", ioMessageUtil.toJSON(ioMsg),
-        function(body){
+        function postNewMsg(body){
             if (body.id && body.timestamp) { cb.onMessageReceipt(body.id, body.timestamp); }
         }
     );
@@ -105,7 +106,7 @@ exports.sendNewMessage = function(ioMsg, cb) {
  */
 exports.getNextMessages = function(cb) {
     makeHttpRequest(cb, "/v2/messages/next", {id:ELEMENT_ID},
-        function(body){
+        function getNextMsgs(body){
             if (body.messages) {
                 cb.onMessages(ioMessageUtil.decodeMessages(body.messages));
             }
@@ -130,7 +131,7 @@ exports.getMessagesByQuery = function(startdate, enddate, publishers, cb) {
                 timeframeend: enddate,
                 publishers: publishers
             } ,
-            function(body){
+            function getQueryMsgs(body){
                 if (body.messages) { cb.onMessagesQuery( body.timeframestart, body.timeframeend,ioMessageUtil.decodeMessages(body.messages)); }
             }
         );
@@ -146,7 +147,7 @@ exports.getMessagesByQuery = function(startdate, enddate, publishers, cb) {
  */
 exports.getConfig = function(cb) {
     makeHttpRequest(cb, "/v2/config/get", {id:ELEMENT_ID},
-        function(body){
+        function getNewConfig(body){
             if (body.config) { cb.onNewConfig(JSON.parse(body.config)); }
         }
     );
@@ -158,13 +159,13 @@ exports.getConfig = function(cb) {
  * @param cb - object with callback functions (onError, onNewConfigSignal)
  */
 exports.wsControlConnection = function(cb) {
-    makeWSRequest(cb, "/v2/control/socket/id/",
-        function(data, flags){
+    makeWSRequest(wsControl, cb, "/v2/control/socket/id/",
+        function wsHandleControlData(data, flags){
             if(flags.binary && data.length > 0) {
                 var opcode = data[0];
                 if (opcode == OPCODE_CONTROL_SIGNAL) {
                     cb.onNewConfigSignal();
-                    sendAck();
+                    sendAck(wsControl);
                 }
             }
         }
@@ -179,8 +180,8 @@ exports.wsControlConnection = function(cb) {
  * @param cb - object with callback functions (onError, onMessages, onMessageReceipt)
  */
 exports.wsMessageConnection = function( sendMsgCb, cb) {
-    makeWSRequest(cb, "/v2/message/socket/id/",
-        function(data, flags){
+    makeWSRequest(wsMessage, cb, "/v2/message/socket/id/",
+        function wsHandleMessageData(data, flags){
             if(flags.binary && data.length > 0) {
                 var opcode = data[0];
                 if (opcode == OPCODE_MSG) {
@@ -189,6 +190,7 @@ exports.wsMessageConnection = function( sendMsgCb, cb) {
                     pos += 4;
                     var bytes = data.slice(pos, msgLength + pos);
                     var msg = ioMessageUtil.ioMessageFromBuffer(bytes);
+                    bytes = null;
                     cb.onMessages([msg]);
                     sendAck();
                 } else if(opcode == OPCODE_RECEIPT) {
@@ -204,15 +206,8 @@ exports.wsMessageConnection = function( sendMsgCb, cb) {
                     if (size > 0) {
                         timestamp = data.readUIntBE(pos, size);
                     }
-                    for(var i = 0, len = ws.msgWatchers.length; i < len; i++){
-                        var msgWatcher = ws.msgWatchers[i];
-                        if(msgWatcher.iomsg.id == messageId) {
-                            ws.msgWatchers.splice(i, 1);
-                            break;
-                        }
-                    }
                     cb.onMessageReceipt(messageId, timestamp);
-                    sendAck();
+                    sendAck(wsMessage);
                 }
             }
         },
@@ -226,35 +221,21 @@ exports.wsMessageConnection = function( sendMsgCb, cb) {
  * @param ioMsg - ioMessage object to send
  */
 exports.wsSendMessage = function(ioMsg) {
-    if(ws.readyState != WebSocket.OPEN) { throw new Error('WS is not connected'); }
+    if(!wsMessage || wsMessage.readyState != WebSocket.OPEN) { throw new Error('WS is not connected'); }
     var msgBuffer = ioMessageUtil.ioMsgBuffer(ioMsg);
     var opCodeBuffer = new Buffer([OPCODE_MSG]);
     var lengthBuffer = new Buffer(byteUtils.intToBytes(msgBuffer.length));
-    var found = false;
-    for(var i = 0, len = ws.msgWatchers.length; i < len; i++) {
-        var msgWatcher = ws.msgWatchers[i];
-        if(msgWatcher.iomsg.id == ioMsg.id) {
-            ws.msgWatchers[i].attempts++;
-            found = true;
-            break;
-        }
-    }
-    if(!found){ ws.msgWatchers.push(getMSGWatcher(ioMsg, 1)); }
-    ws.send( Buffer.concat([opCodeBuffer, lengthBuffer, msgBuffer ], opCodeBuffer.length + lengthBuffer.length + msgBuffer.length),
-        { binary: true, mask: true });
-}
-
-function getMSGWatcher(ioMsg, counter){
-    return {iomsg: ioMsg, attempts: counter};
+    var resultBuffer = Buffer.concat([opCodeBuffer, lengthBuffer, msgBuffer ], opCodeBuffer.length + lengthBuffer.length + msgBuffer.length);
+    wsMessage.send(resultBuffer, { binary: true, mask: true });
 }
 
 /**
  * Utility function sends ACKNOWLEDGE response to ioFabric
  **/
-function sendAck(){
+function sendAck(ws){
     var buffer = new Buffer(1);
     buffer[0] = OPCODE_ACK;
-    ws.send(buffer, { binary: true, mask: true });
+    if(ws){ ws.send(buffer, { binary: true, mask: true }); }
 }
 
 /**
@@ -309,11 +290,11 @@ function makeHttpRequest(listenerCb, url, json, processCb) {
             'Content-Type': 'application/json'
         },
         json: json
-    }, function (err, resp, body) {
+    }, function handleHttpResponse(err, resp, body) {
         if (err) {
             return listenerCb.onError(err);
         }
-        if (resp.statusCode == 400) {
+        if (resp && resp.statusCode == 400) {
             return listenerCb.onBadRequest(body);
         }
         processCb(body);
@@ -328,31 +309,18 @@ function makeHttpRequest(listenerCb, url, json, processCb) {
  * @param onDataCb - callback function that will be triggered when message is received from ioFabric
  * @param sendMsgCb - function that will be triggered when connection is opened (call wsSendMessage in this function)
  */
-function makeWSRequest(listenerCb, url, onDataCb, sendMsgCb){
+function makeWSRequest(ws, listenerCb, url, onDataCb, sendMsgCb){
     var url = getWSURL(url + ELEMENT_ID);
     ws = new WebSocket(url, {protocolVersion: 13});
-    ws.on('message', function(data, flags) {
+    ws.on('message', function handleWsData(data, flags) {
         onDataCb(data, flags);
     });
-    ws.on('error', function(error) {
+    ws.on('error', function handleWsError(error) {
         listenerCb.onError(error);
     });
-    ws.on('open', function() {
-        ws.msgWatchers = [];
+    ws.on('open', function wsOnOpen() {
         if(sendMsgCb){ sendMsgCb(module.exports); }
-        var interval = setInterval(function() {
-            for(var i = 0, len = ws.msgWatchers.length; i < len; i++) {
-                var msgWatcher = ws.msgWatchers[i];
-                if(msgWatcher.attempts >=10){
-                    ws.close();
-                    break;
-                } else if (msgWatcher.attempts > 0) {
-                    module.exports.wsSendMessage(msgWatcher.iomsg);
-                    break;
-                }
-            }
-        }, 5*1000); /*5 seconds between signals*/
-        ws.on('ping', function(data, flags){
+        ws.on('ping', function wsPing(data, flags){
             if(flags.binary && data.length == 1) {
                 var buffer = new Buffer(1);
                 buffer[0] = OPCODE_PONG;
@@ -371,7 +339,7 @@ function processArgs(arr) {
     arr.shift();
     arr.shift();
     var options = {};
-    arr.forEach(function(arg) {
+    arr.forEach(function handleForEach(arg) {
         if(arg.indexOf('=') > 0) {
             var pieces = arg.split('=');
             options[pieces[0]] = pieces[1];

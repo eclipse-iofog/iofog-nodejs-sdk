@@ -50,7 +50,7 @@ ioFabricClient.init('iofabric', 10500, null,
          ioFabricClient.getNextMessages(
          Object.create({
          "onBadRequest": function(errorMsg){ console.log(errorMsg); },
-         "onMessages": function(timeframestart, timeframeend, messages){ console.log(timeframestart + ':' + timeframeend); console.log(messages); },
+         "onMessages": function(messages){ console.log(timeframestart + ':' + timeframeend); console.log(messages); },
          "onError":function(error){ console.log(error); }
          })
          );
