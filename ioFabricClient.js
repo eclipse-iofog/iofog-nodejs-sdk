@@ -143,9 +143,7 @@ exports.getMessagesByQuery = function(startdate, enddate, publishers, cb) {
                 if (body.messages) { cb.onMessagesQuery( body.timeframestart, body.timeframeend,ioMessageUtil.decodeMessages(body.messages)); }
             }
         );
-    } else {
-        throw new Error('Publishers input is not array!');
-    }
+    } else { throw new Error('Publishers input is not array!'); }
 }
 
 /**
@@ -158,11 +156,8 @@ exports.getConfig = function(cb) {
         function getNewConfig(body){
             if (body.config) {
                 var configJSON = {};
-                try{
-                    configJSON = JSON.parse(body.config);
-                } catch (error) {
-                    console.error('There was an error parsing config to JSON: ', error);
-                }
+                try{ configJSON = JSON.parse(body.config); }
+                catch (error) { console.error('There was an error parsing config to JSON: ', error); }
                 cb.onNewConfig(configJSON);
             }
         }
@@ -208,7 +203,7 @@ exports.wsMessageConnection = function( sendMsgCb, cb) {
                     var msg = ioMessageUtil.ioMessageFromBuffer(bytes);
                     bytes = null;
                     cb.onMessages([msg]);
-                    sendAck();
+                    sendAck(wsMessage);
                 } else if(opcode == OPCODE_RECEIPT) {
                     var size = data[1];
                     var pos = 3;
