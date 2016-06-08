@@ -27,6 +27,14 @@ var port = 54321;
 var wsMessage;
 var wsControl;
 
+require("console-stamp")( console, {
+    colors: {
+        stamp: "yellow",
+        label: "white",
+        metadata: "green"
+    }
+} );
+
 /**
  * Sets custom host and port for connection (if no argument is specified will use the default values).
  *
@@ -50,7 +58,7 @@ exports.init = function(shost, sport, containerId, mainCb) {
 
     exec("ping -c 3 " + host, function checkHost(error, stdout, stderr) {
         if(stderr != '' || error!==null){
-            console.log("Host:" + host + " is not reachable. Changing to '127.0.0.1'");
+            console.warn("Host:" + host + " is not reachable. Changing to '127.0.0.1'");
             host = '127.0.0.1';
         }
         mainCb();
@@ -148,7 +156,15 @@ exports.getMessagesByQuery = function(startdate, enddate, publishers, cb) {
 exports.getConfig = function(cb) {
     makeHttpRequest(cb, "/v2/config/get", {id:ELEMENT_ID},
         function getNewConfig(body){
-            if (body.config) { cb.onNewConfig(JSON.parse(body.config)); }
+            if (body.config) {
+                var configJSON = {};
+                try{
+                    configJSON = JSON.parse(body.config);
+                } catch (error) {
+                    console.error('There was an error parsing config to JSON: ', error);
+                }
+                cb.onNewConfig(configJSON);
+            }
         }
     );
 }
@@ -333,7 +349,7 @@ function makeWSRequest(ws, listenerCb, url, onDataCb, sendMsgCb){
 /**
  * Utility function to process start options
  *
- * @param options - array of start options
+ * @param arr - array of start options
  */
 function processArgs(arr) {
     arr.shift();
