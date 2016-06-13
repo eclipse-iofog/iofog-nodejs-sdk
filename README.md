@@ -20,10 +20,10 @@ import module:
 set up custom host, port and container's ID (in case of no params default values for host and port will be used: 'iofabric', 54321)
 and pass main callback to trigger when ioFabricClient initialization is done:
 ```
-  ioFabricClient.init('iofabric', 54321, null,
-    function (){
+  ioFabricClient.init( 'iofabric', 54321, null,
+   function () {
         // any code to perform after ioFabric is initialized
-    }
+   }
   );
 ```
 
@@ -31,10 +31,27 @@ and pass main callback to trigger when ioFabricClient initialization is done:
 post new ioMessage to ioFabric via REST call:
 ```
   ioFabricClient.sendNewMessage(
-    ioFabricClient.ioMessage('Bosch Camera 8798797', 'group1', 2, 100, 5, 'auth', 'authgrp', 10, 'hashingggg', 'prevhashingggg', 'nounceee',
-        30, 'image/jpeg', 'base64', 'gghh', 'sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328'),
+    ioFabricClient.ioMessage(
+                 {
+                     'tag': 'Bosch Camera 8798797',
+                     'groupid': 'group1',
+                     'sequencenumber': 2,
+                     'sequencetotal': 100,
+                     'priority': 5,
+                     'authid': 'auth',
+                     'authgroup': 'authgrp',
+                     'chainposition': 10,
+                     'hash': 'hashingggg',
+                     'previoushash': 'prevhashingggg',
+                     'nonce': 'nounceee',
+                     'difficultytarget': 30,
+                     'infotype': 'image/jpeg',
+                     'infoformat': 'base64',
+                     'contextdata': 'gghh',
+                     'contentdata' : 'sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328'
+                 });
     Object.create({
-        "onBadRequest": function(errorMsg){ console.log(errorMsg); },
+        "onBadRequest": function(errorMsg) { console.log(errorMsg); },
         "onMessageReceipt": function(messageId, timestamp){ console.log(messageId + ' : ' + timestamp); },
         "onError":function(error){ console.log(error); }
     })
@@ -81,9 +98,25 @@ open WS Message Channel to ioFabric with callback to send new message via this c
 ```
   ioFabricClient.wsMessageConnection(
     function(ioFabricClient) {
-        var ioMsg = ioFabricClient.ioMessage('Bosch Camera 8798797', 'group1', 2, 100, 5, 'auth', 'authgrp', 10, 'hashingggg',
-            'prevhashingggg', 'nounceee', 30, 'image/jpeg', 'base64', new Buffer('gghh'),
-            new Buffer('sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328testcounter'));
+        var ioMsg = ioFabricClient.ioMessage(
+                 {
+                     'tag': 'Bosch Camera 8798797',
+                     'groupid': 'group1',
+                     'sequencenumber': 2,
+                     'sequencetotal': 100,
+                     'priority': 5,
+                     'authid': 'auth',
+                     'authgroup': 'authgrp',
+                     'chainposition': 10,
+                     'hash': 'hashingggg',
+                     'previoushash': 'prevhashingggg',
+                     'nonce': 'nounceee',
+                     'difficultytarget': 30,
+                     'infotype': 'image/jpeg',
+                     'infoformat': 'base64',
+                     'contextdata': 'gghh',
+                     'contentdata' : 'sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328'
+                 });
         ioFabricClient.wsSendMessage(ioMsg);
     },
     Object.create({
