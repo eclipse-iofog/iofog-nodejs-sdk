@@ -22,17 +22,32 @@ ioFabricClient.init('iofabric', 10500, null,
     function() {
         /*REST calls examples*/
         /*post new ioMessage to ioFabric via REST call*/
-        /*
-         ioFabricClient.sendNewMessage(
-         ioFabricClient.ioMessage('Bosch Camera 8798797', 'group1', 2, 100, 5, 'auth', 'authgrp', 10, 'hashingggg', 'prevhashingggg', 'nounceee',
-         30, 'image/jpeg', 'base64', 'gghh', 'sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328'),
-         Object.create({
-         "onBadRequest": function(errorMsg){ console.log(errorMsg); },
-         "onMessageReceipt": function(messageId, timestamp){ console.log(messageId + ' : ' + timestamp); },
-         "onError":function(error){ console.log(error); }
-         })
-         );
-         */
+        /* ioFabricClient.sendNewMessage(
+             ioFabricClient.ioMessage(
+                 {
+                     'tag': 'Bosch Camera 8798797',
+                     'groupid': 'group1',
+                     'sequencenumber': 2,
+                     'sequencetotal': 100,
+                     'priority': 5,
+                     'authid': 'auth',
+                     'authgroup': 'authgrp',
+                     'chainposition': 10,
+                     'hash': 'hashingggg',
+                     'previoushash': 'prevhashingggg',
+                     'nonce': 'nounceee',
+                     'difficultytarget': 30,
+                     'infotype': 'image/jpeg',
+                     'infoformat': 'base64',
+                     'contextdata': 'gghh',
+                     'contentdata' : 'sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328'
+                 }
+             Object.create({
+                 "onBadRequest": function(errorMsg){ console.log(errorMsg); },
+                 "onMessageReceipt": function(messageId, timestamp){ console.log(messageId + ' : ' + timestamp); },
+                 "onError":function(error){ console.log(error); }
+             })
+         );*/
 
         /*get list of ioMessages with query to ioFabric via REST call*/
         /*
