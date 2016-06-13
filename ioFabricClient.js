@@ -297,7 +297,6 @@ exports.wsMessageConnection = function(sendMsgCb, cb) {
  * @param <Object> ioMsg - ioMessage object to send
  */
 exports.wsSendMessage = function(ioMsg) {
-    console.log('Sending message');
     if(!wsMessage || wsMessage.readyState != WebSocket.OPEN) {
         console.error('wsSendMessage: socket is not open.');
         return;
