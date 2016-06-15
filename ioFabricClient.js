@@ -105,24 +105,8 @@ exports.init = function(pHost, pPort, containerId, mainCb) {
  */
 exports.ioMessage = function(opts) {
     if(opts) {
-        return ioMessageUtil.ioMessage(
-            opts.tag,
-            opts.groupid,
-            opts.sequencenumber,
-            opts.sequencetotal,
-            opts.priority,
-            ELEMENT_ID,
-            opts.authid,
-            opts.authgroup,
-            opts.chainposition,
-            opts.hash,
-            opts.previoushash,
-            opts.nonce,
-            opts.difficultytarget,
-            opts.infotype,
-            opts.infoformat,
-            opts.contextdata,
-            opts.contentdata);
+        opts.publisherId = ELEMENT_ID;
+        return ioMessageUtil.ioMessage(opts);
     } else {
         return {};
     }
@@ -438,19 +422,19 @@ function openWSConnection(listenerCb, relativeUrl, onDataCb, sendMsgCb){
         }
     );
     ws.on(
+        'ping' ,
+        function wsPing(data, flags) {
+            if(flags.binary && data.length === 1 && data[0] === OPCODE_PING) {
+                sendPong(ws);
+            }
+        }
+    );
+    ws.on(
         'open' ,
         function wsOnOpen() {
             if(sendMsgCb) {
                 sendMsgCb(module.exports);
             }
-            ws.on(
-                'ping' ,
-                function wsPing(data, flags) {
-                    if(flags.binary && data.length === 1 && data[0] === OPCODE_PING) {
-                        sendPong(ws);
-                    }
-                }
-            );
         }
     );
     switch(relativeUrl) {
