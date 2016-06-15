@@ -13,13 +13,13 @@ This module lets you easily build an ioElement. It gives you all the functionali
 ## Code snippets: 
 
 import module:
-```
+```javascript
   var ioFabricClient = module.exports = require('@iotracks/container-sdk-nodejs');
 ```
 
 set up custom host, port and container's ID (in case of no params default values for host and port will be used: 'iofabric', 54321)
 and pass main callback to trigger when ioFabricClient initialization is done:
-```
+```javascript
   ioFabricClient.init( 'iofabric', 54321, null,
     function () {
         // any code to perform after ioFabric is initialized
@@ -29,7 +29,7 @@ and pass main callback to trigger when ioFabricClient initialization is done:
 
 #### REST calls
 post new ioMessage to ioFabric via REST call:
-```
+```javascript
   ioFabricClient.sendNewMessage(
     ioFabricClient.ioMessage(
                  {
@@ -68,7 +68,7 @@ post new ioMessage to ioFabric via REST call:
 ```
 
 get list of ioMessages by time frame for accessible publishers from ioFabric via REST call
-```
+```javascript
   ioFabricClient.getMessagesByQuery( Date.now(), Date.now(), ['PUBLISHER'],
     Object.create( {
         'onBadRequest':
@@ -89,7 +89,7 @@ get list of ioMessages by time frame for accessible publishers from ioFabric via
 ```
 
 get list of next unread ioMessages via REST call
-```
+```javascript
   ioFabricClient.getNextMessages(
     Object.create( {
         'onBadRequest':
@@ -109,7 +109,7 @@ get list of next unread ioMessages via REST call
 ```
 
 get container's config via REST call
-```
+```javascript
   ioFabricClient.getConfig(
     Object.create( {
         'onBadRequest':
@@ -130,7 +130,7 @@ get container's config via REST call
 
 #### WebSocket(WS) calls
 open WS Message Channel to ioFabric with callback to send new message via this channel
-```
+```javascript
   ioFabricClient.wsMessageConnection(
     function(ioFabricClient) {
         var ioMsg = ioFabricClient.ioMessage(
@@ -172,7 +172,7 @@ open WS Message Channel to ioFabric with callback to send new message via this c
 ```
 
 Open WS Control Channel to ioFabric
-```
+```javascript
   ioFabricClient.wsControlConnection(
     Object.create( {
         'onNewConfigSignal':
