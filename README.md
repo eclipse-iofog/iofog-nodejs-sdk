@@ -21,9 +21,9 @@ set up custom host, port and container's ID (in case of no params default values
 and pass main callback to trigger when ioFabricClient initialization is done:
 ```
   ioFabricClient.init( 'iofabric', 54321, null,
-   function () {
+    function () {
         // any code to perform after ioFabric is initialized
-   }
+    }
   );
 ```
 
@@ -50,46 +50,81 @@ post new ioMessage to ioFabric via REST call:
                      'contextdata': 'gghh',
                      'contentdata' : 'sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328'
                  });
-    Object.create({
-        'onBadRequest': function(errorMsg) { console.log(errorMsg); },
-        'onMessageReceipt': function(messageId, timestamp){ console.log(messageId + ' : ' + timestamp); },
-        'onError':function(error){ console.log(error); }
-    })
+    Object.create( {
+        'onBadRequest':
+            function(errorMsg) {
+                console.log(errorMsg);
+            },
+        'onMessageReceipt':
+            function(messageId, timestamp) {
+                console.log(messageId + ' : ' + timestamp);
+            },
+        'onError':
+            function(error) {
+                console.log(error);
+            }
+    } )
   );
 ```
 
 get list of ioMessages by time frame for accessible publishers from ioFabric via REST call
 ```
-  ioFabricClient.getMessagesByQuery(Date.now(), Date.now(), ['PUBLISHER'],
-    Object.create({
-        'onBadRequest': function(errorMsg){ console.log(errorMsg); },
-        'onMessagesQuery': function(timeframestart, timeframeend, messages){ console.log(timeframestart + ':' + timeframeend); console.log(messages); },
-        'onError':function(error){ console.log(error); }
-    })
+  ioFabricClient.getMessagesByQuery( Date.now(), Date.now(), ['PUBLISHER'],
+    Object.create( {
+        'onBadRequest':
+            function(errorMsg) {
+                console.log(errorMsg);
+            },
+        'onMessagesQuery':
+            function(timeframestart, timeframeend, messages) {
+                console.log(timeframestart + ':' + timeframeend);
+                console.log(messages);
+            },
+        'onError':
+            function(error) {
+                console.log(error);
+            }
+    } )
   );
 ```
 
 get list of next unread ioMessages via REST call
 ```
   ioFabricClient.getNextMessages(
-    Object.create({
-        'onBadRequest': function(errorMsg){ console.log(errorMsg); },
-        'onMessages': function(messages){ console.log(messages); },
-        'onError':function(error){ console.log(error); }
-    })
+    Object.create( {
+        'onBadRequest':
+            function(errorMsg) {
+                console.log(errorMsg);
+            },
+        'onMessages':
+            function(messages) {
+                console.log(messages);
+            },
+        'onError':
+            function(error) {
+                console.log(error);
+            }
+    } )
   );
 ```
 
 get container's config via REST call
 ```
   ioFabricClient.getConfig(
-    Object.create({
-        'onBadRequest': function(errorMsg){ console.log(errorMsg); },
-        'onNewConfig':function(config){
-            console.log(config);
-        },
-        'onError':function(error){ console.log(error); }
-    })
+    Object.create( {
+        'onBadRequest':
+            function(errorMsg) {
+                console.log(errorMsg);
+            },
+        'onNewConfig':
+            function(config) {
+               console.log(config);
+            },
+        'onError':
+            function(error) {
+                console.log(error);
+            }
+    } )
   );
 ```
 
@@ -119,21 +154,36 @@ open WS Message Channel to ioFabric with callback to send new message via this c
                  });
         ioFabricClient.wsSendMessage(ioMsg);
     },
-    Object.create({
-        'onMessages': function(messages){ console.log(messages); },
-        'onMessageReceipt': function(messageId, timestamp){ console.log(messageId + ' : ' + timestamp); },
-        'onError':function(error){ console.log(error); }
-    })
+    Object.create( {
+        'onMessages':
+            function(messages) {
+                console.log(messages);
+            },
+        'onMessageReceipt':
+            function(messageId, timestamp) {
+                console.log(messageId + ' : ' + timestamp);
+            },
+        'onError':
+            function(error) {
+                console.log(error);
+            }
+    } )
   );
 ```
 
 Open WS Control Channel to ioFabric
 ```
   ioFabricClient.wsControlConnection(
-    Object.create({
-        'onNewConfigSignal': function(){ console.log('New config is awaiting,'); },
-        'onError':function(error){ console.log(error); }
-    })
+    Object.create( {
+        'onNewConfigSignal':
+            function() {
+                console.log('New config is awaiting.');
+            },
+        'onError':
+            function(error) {
+                console.log(error);
+            }
+    } )
   );
 ```
 
