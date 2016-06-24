@@ -49,7 +49,7 @@ post new ioMessage to ioFabric via REST call:
                      'infoformat': 'base64',
                      'contextdata': 'gghh',
                      'contentdata' : 'sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328'
-                 });
+                 }),
     {
         'onBadRequest':
             function(errorMsg) {
