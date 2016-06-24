@@ -50,7 +50,7 @@ post new ioMessage to ioFabric via REST call:
                      'contextdata': 'gghh',
                      'contentdata' : 'sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328'
                  });
-    Object.create( {
+    {
         'onBadRequest':
             function(errorMsg) {
                 console.log(errorMsg);
@@ -63,14 +63,14 @@ post new ioMessage to ioFabric via REST call:
             function(error) {
                 console.log(error);
             }
-    } )
+    }
   );
 ```
 
 get list of ioMessages by time frame for accessible publishers from ioFabric via REST call
 ```javascript
   ioFabricClient.getMessagesByQuery( Date.now(), Date.now(), ['PUBLISHER'],
-    Object.create( {
+    {
         'onBadRequest':
             function(errorMsg) {
                 console.log(errorMsg);
@@ -84,14 +84,14 @@ get list of ioMessages by time frame for accessible publishers from ioFabric via
             function(error) {
                 console.log(error);
             }
-    } )
+    }
   );
 ```
 
 get list of next unread ioMessages via REST call
 ```javascript
   ioFabricClient.getNextMessages(
-    Object.create( {
+    {
         'onBadRequest':
             function(errorMsg) {
                 console.log(errorMsg);
@@ -104,14 +104,14 @@ get list of next unread ioMessages via REST call
             function(error) {
                 console.log(error);
             }
-    } )
+    }
   );
 ```
 
 get container's config via REST call
 ```javascript
   ioFabricClient.getConfig(
-    Object.create( {
+    {
         'onBadRequest':
             function(errorMsg) {
                 console.log(errorMsg);
@@ -124,7 +124,7 @@ get container's config via REST call
             function(error) {
                 console.log(error);
             }
-    } )
+    }
   );
 ```
 
@@ -154,7 +154,7 @@ open WS Message Channel to ioFabric with callback to send new message via this c
                  });
         ioFabricClient.wsSendMessage(ioMsg);
     },
-    Object.create( {
+    {
         'onMessages':
             function(messages) {
                 console.log(messages);
@@ -167,14 +167,14 @@ open WS Message Channel to ioFabric with callback to send new message via this c
             function(error) {
                 console.log(error);
             }
-    } )
+    }
   );
 ```
 
 Open WS Control Channel to ioFabric
 ```javascript
   ioFabricClient.wsControlConnection(
-    Object.create( {
+    {
         'onNewConfigSignal':
             function() {
                 console.log('New config is awaiting.');
@@ -183,7 +183,7 @@ Open WS Control Channel to ioFabric
             function(error) {
                 console.log(error);
             }
-    } )
+    }
   );
 ```
 

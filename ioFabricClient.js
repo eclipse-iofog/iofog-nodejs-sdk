@@ -26,7 +26,7 @@ var port = 54321;
 var wsConnectAttemptsLimit = 5;
 var wsConnectMessageTimeoutAttempts = 0;
 var wsConnectControlTimeoutAttempts = 0;
-var wsConnectTimeout = 2000;
+var wsConnectTimeout = 1000;
 
 var wsMessage;
 var wsControl;
@@ -411,8 +411,6 @@ function makeHttpRequest(listenerCb, relativeUrl, json, onResponseCb) {
  */
 function openWSConnection(listenerCb, relativeUrl, onDataCb, sendMsgCb){
     var endpoint = getURL(getWSProtocol(), relativeUrl + ELEMENT_ID);
-    var pingInterval = 1000;
-    var pingIntervalFunction;
     var pingFlag;
     var ws = new WebSocket(
         endpoint ,
@@ -471,20 +469,8 @@ function openWSConnection(listenerCb, relativeUrl, onDataCb, sendMsgCb){
             if(sendMsgCb) {
                 sendMsgCb(module.exports);
             }
-            //pingIntervalFunction = setInterval( pingFabric, pingInterval);
         }
     );
-    /*function pingFabric() {
-        if(!pingFlag && ws) {
-            sendPing(ws);
-            pingFlag = Date.now();
-        } else {
-            console.log('terminate');
-            pingFlag = null;
-            clearInterval(pingIntervalFunction);
-            ws.terminate();
-        }
-    }*/
     setGlobalWS(relativeUrl, ws);
 }
 
