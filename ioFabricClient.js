@@ -23,6 +23,10 @@ var ELEMENT_ID = "NOT_DEFINED"; // publisher's ID
 var SSL = false;
 var host = "iofabric";
 var port = 54321;
+var wsConnectAttemptsLimit = 5;
+var wsConnectMessageTimeoutAttempts = 0;
+var wsConnectControlTimeoutAttempts = 0;
+var wsConnectTimeout = 2000;
 
 var wsMessage;
 var wsControl;
@@ -241,7 +245,7 @@ exports.wsMessageConnection = function(sendMsgCb, cb) {
         cb ,
         '/v2/message/socket/id/' ,
         function wsHandleMessageData(data, flags) {
-            if(flags.binary && data.length > 0) {
+            if(flags.binary && data.length) {
                 var opcode = data[0], pos;
                 if (opcode == OPCODE_MSG) {
                     pos = 1;
@@ -250,20 +254,18 @@ exports.wsMessageConnection = function(sendMsgCb, cb) {
                     var bytes = data.slice(pos, msgLength + pos);
                     var msg = ioMessageUtil.ioMessageFromBuffer(bytes);
                     cb.onMessages([msg]);
-                    var buffer = Buffer(1);
-                    buffer[0] = OPCODE_PONG;
                     sendAck(wsMessage);
                 } else if (opcode == OPCODE_RECEIPT) {
                     var size = data[1];
                     pos = 3;
                     var messageId = '';
-                    if (size > 0) {
+                    if (size) {
                         messageId = data.slice(pos, pos + size).toString('utf-8');
                         pos += size;
                     }
                     size = data[2];
                     var timestamp = 0;
-                    if (size > 0) {
+                    if (size) {
                         timestamp = data.readUIntBE(pos, size);
                     }
                     cb.onMessageReceipt(messageId, timestamp);
@@ -298,8 +300,10 @@ exports.wsSendMessage = function(ioMsg) {
 function sendAck(ws) {
     var buffer = Buffer(1);
     buffer[0] = OPCODE_ACK;
-    if(ws) {
+    if(ws && ws.readyState === WebSocket.OPEN) {
         ws.send(buffer, { binary: true, mask: true });
+    } else {
+        console.warn('Unable to send ACKNOWLEDGE: WS connection isn\'t open. ');
     }
 }
 
@@ -309,8 +313,10 @@ function sendAck(ws) {
 function sendPing(ws) {
     var buffer = Buffer(1);
     buffer[0] = OPCODE_PING;
-    if(ws) {
-        ws.send(buffer, { binary: true, mask: true });
+    if(ws && ws.readyState === WebSocket.OPEN) {
+        ws.ping(buffer, { binary: true, mask: true });
+    } else {
+        console.warn('Unable to send PING: WS connection isn\'t open. ');
     }
 }
 
@@ -320,8 +326,10 @@ function sendPing(ws) {
 function sendPong(ws) {
     var buffer = Buffer(1);
     buffer[0] = OPCODE_PONG;
-    if(ws) {
-        ws.send(buffer, { binary: true, mask: true });
+    if(ws && ws.readyState === WebSocket.OPEN) {
+        ws.pong(buffer, { binary: true, mask: true });
+    } else {
+        console.warn('Unable to send PONG: WS connection isn\'t open. ');
     }
 }
 
@@ -403,6 +411,9 @@ function makeHttpRequest(listenerCb, relativeUrl, json, onResponseCb) {
  */
 function openWSConnection(listenerCb, relativeUrl, onDataCb, sendMsgCb){
     var endpoint = getURL(getWSProtocol(), relativeUrl + ELEMENT_ID);
+    var pingInterval = 1000;
+    var pingIntervalFunction;
+    var pingFlag;
     var ws = new WebSocket(
         endpoint ,
         {
@@ -419,6 +430,9 @@ function openWSConnection(listenerCb, relativeUrl, onDataCb, sendMsgCb){
         'error' ,
         function handleWsError(error) {
             listenerCb.onError(error);
+            if(error && error.code === 'ECONNREFUSED') {
+                wsReconnect(relativeUrl, ws, listenerCb, onDataCb, sendMsgCb);
+            }
         }
     );
     ws.on(
@@ -430,13 +444,51 @@ function openWSConnection(listenerCb, relativeUrl, onDataCb, sendMsgCb){
         }
     );
     ws.on(
-        'open' ,
-        function wsOnOpen() {
-            if(sendMsgCb) {
-                sendMsgCb(module.exports);
+        'pong' ,
+        function wsPong(data, flags) {
+            if(flags.binary && data.length === 1 && data[0] === OPCODE_PONG) {
+                pingFlag = null;
             }
         }
     );
+    ws.on( 'close' , function wsClose(code, message) {
+        // code : 1006  - ioFabric crashed, 1000 - CloseWebFrame from ioFabric
+        wsReconnect(relativeUrl, ws, listenerCb, onDataCb, sendMsgCb);
+    });
+    ws.on(
+        'open' ,
+        function wsOnOpen() {
+            switch (relativeUrl) {
+                case '/v2/control/socket/id/':
+                    wsConnectControlTimeoutAttempts = 0;
+                    break;
+                case '/v2/message/socket/id/':
+                    wsConnectMessageTimeoutAttempts = 0;
+                    break;
+                default:
+                    console.warn('No global socket defined.');
+            }
+            if(sendMsgCb) {
+                sendMsgCb(module.exports);
+            }
+            //pingIntervalFunction = setInterval( pingFabric, pingInterval);
+        }
+    );
+    /*function pingFabric() {
+        if(!pingFlag && ws) {
+            sendPing(ws);
+            pingFlag = Date.now();
+        } else {
+            console.log('terminate');
+            pingFlag = null;
+            clearInterval(pingIntervalFunction);
+            ws.terminate();
+        }
+    }*/
+    setGlobalWS(relativeUrl, ws);
+}
+
+function setGlobalWS(relativeUrl, ws) {
     switch(relativeUrl) {
         case '/v2/control/socket/id/':
             wsControl = ws;
@@ -465,4 +517,39 @@ function processArgs(args) {
         }
     });
     return options;
+}
+/**
+ * Utility function to reconnect to ioFabric via WebSocket.
+ *
+ * @param relativeUrl - array of start options
+ * @param <WebSocket> ws - webSocket that needs to be destroyed
+ * @param <Object> listenerCb - <Object> that contains listener callback (onError)
+ * @param <Function> onDataCb - callback function that will be triggered when message is received from ioFabric
+ * @param <Function> sendMsgCb - function that will be triggered when connection is opened (call wsSendMessage in this function)
+ */
+function wsReconnect(relativeUrl, ws, listenerCb, onDataCb, sendMsgCb){
+    console.info('Reconnecting to ioFabric via socket.');
+    var timeout = 0 ;
+    if(wsConnectMessageTimeoutAttempts < wsConnectAttemptsLimit || wsConnectControlTimeoutAttempts < wsConnectAttemptsLimit) {
+        switch (relativeUrl) {
+            case '/v2/control/socket/id/':
+                timeout = wsConnectTimeout * Math.pow(2, wsConnectControlTimeoutAttempts);
+                wsConnectControlTimeoutAttempts++;
+                break;
+            case '/v2/message/socket/id/':
+                timeout = wsConnectTimeout * Math.pow(2, wsConnectMessageTimeoutAttempts);
+                wsConnectMessageTimeoutAttempts++;
+                break;
+            default:
+                console.warn('No global socket defined.');
+        }
+    } else {
+        timeout = wsConnectTimeout * Math.pow(2, wsConnectAttemptsLimit - 1);
+    }
+    ws = null;
+    setGlobalWS(relativeUrl, ws);
+    setTimeout(
+        function wsReconnect(){
+            openWSConnection(listenerCb, relativeUrl, onDataCb, sendMsgCb)
+        } , timeout);
 }
