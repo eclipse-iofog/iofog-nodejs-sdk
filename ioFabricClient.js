@@ -516,19 +516,12 @@ function processArgs(args) {
 function wsReconnect(relativeUrl, ws, listenerCb, onDataCb, sendMsgCb){
     console.info('Reconnecting to ioFabric via socket.');
     var timeout = 0 ;
-    if(wsConnectMessageTimeoutAttempts < wsConnectAttemptsLimit || wsConnectControlTimeoutAttempts < wsConnectAttemptsLimit) {
-        switch (relativeUrl) {
-            case '/v2/control/socket/id/':
-                timeout = wsConnectTimeout * Math.pow(2, wsConnectControlTimeoutAttempts);
-                wsConnectControlTimeoutAttempts++;
-                break;
-            case '/v2/message/socket/id/':
-                timeout = wsConnectTimeout * Math.pow(2, wsConnectMessageTimeoutAttempts);
-                wsConnectMessageTimeoutAttempts++;
-                break;
-            default:
-                console.warn('No global socket defined.');
-        }
+    if(wsConnectControlTimeoutAttempts < wsConnectAttemptsLimit && relativeUrl === '/v2/control/socket/id/') {
+        timeout = wsConnectTimeout * Math.pow(2, wsConnectControlTimeoutAttempts);
+        wsConnectControlTimeoutAttempts++;
+    } else if (wsConnectMessageTimeoutAttempts < wsConnectAttemptsLimit && relativeUrl === '/v2/message/socket/id/') {
+        timeout = wsConnectTimeout * Math.pow(2, wsConnectMessageTimeoutAttempts);
+        wsConnectMessageTimeoutAttempts++;
     } else {
         timeout = wsConnectTimeout * Math.pow(2, wsConnectAttemptsLimit - 1);
     }
