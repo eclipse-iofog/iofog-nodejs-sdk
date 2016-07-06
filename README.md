@@ -129,7 +129,7 @@ get container's config via REST call
 ```
 
 #### WebSocket(WS) calls
-open WS Message Channel to ioFabric with callback to send new message via this channel
+open WS Message Channel to ioFabric with callback that will be executed on open socket (in this example - sends new message via this channel)
 ```javascript
   ioFabricClient.wsMessageConnection(
     function(ioFabricClient) {
