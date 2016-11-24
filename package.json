@@ -2,7 +2,7 @@
   "name": "@iotracks/container-sdk-nodejs",
   "version": "1.1.15",
   "description": "Native node.js SDK for ioTracks development.",
-  "main": "ioFabricClient.js",
+  "main": "ioFogClient.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

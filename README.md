@@ -1,37 +1,37 @@
 # container-sdk-nodejs
 
-This module lets you easily build an ioElement. It gives you all the functionality to interact with ioFabric via Local API. Additionally some useful methods to work with ioMessage.
+This module lets you easily build an ioElement. It gives you all the functionality to interact with ioFog via Local API. Additionally some useful methods to work with ioMessage.
 
- - send new message to ioFabric (sendNewMessage)
- - fetch next unread messages from ioFabric (getNextMessages)
+ - send new message to ioFog (sendNewMessage)
+ - fetch next unread messages from ioFog (getNextMessages)
  - fetch messages for time period and list of accessible publishers (getMessagesByQuery)
  - get config options (getConfig)
  - create ioMessage JSON object (ioMessage)
- - connect to ioFabric Control Channel via WebSocket (wsControlConnection)
- - connect to ioFabric Message Channel via WebSocket (wsMessageConnection) and publish new message via this channel (wsSendMessage)
+ - connect to ioFog Control Channel via WebSocket (wsControlConnection)
+ - connect to ioFog Message Channel via WebSocket (wsMessageConnection) and publish new message via this channel (wsSendMessage)
 
 ## Code snippets: 
 
 import module:
 ```javascript
-  var ioFabricClient = module.exports = require('@iotracks/container-sdk-nodejs');
+  var ioFogClient = module.exports = require('@iotracks/container-sdk-nodejs');
 ```
 
-set up custom host, port and container's ID (in case of no params default values for host and port will be used: 'iofabric', 54321)
-and pass main callback to trigger when ioFabricClient initialization is done:
+set up custom host, port and container's ID (in case of no params default values for host and port will be used: 'ioFog', 54321)
+and pass main callback to trigger when ioFogClient initialization is done:
 ```javascript
-  ioFabricClient.init( 'iofabric', 54321, null,
+  ioFogClient.init( 'iofog', 54321, null,
     function () {
-        // any code to perform after ioFabric is initialized
+        // any code to perform after ioFog is initialized
     }
   );
 ```
 
 #### REST calls
-post new ioMessage to ioFabric via REST call:
+post new ioMessage to ioFog via REST call:
 ```javascript
-  ioFabricClient.sendNewMessage(
-    ioFabricClient.ioMessage(
+  ioFogClient.sendNewMessage(
+    ioFogClient.ioMessage(
                  {
                      'tag': 'Bosch Camera 8798797',
                      'groupid': 'group1',
@@ -67,9 +67,9 @@ post new ioMessage to ioFabric via REST call:
   );
 ```
 
-get list of ioMessages by time frame for accessible publishers from ioFabric via REST call
+get list of ioMessages by time frame for accessible publishers from ioFog via REST call
 ```javascript
-  ioFabricClient.getMessagesByQuery( Date.now(), Date.now(), ['PUBLISHER'],
+  ioFogClient.getMessagesByQuery( Date.now(), Date.now(), ['PUBLISHER'],
     {
         'onBadRequest':
             function(errorMsg) {
@@ -90,7 +90,7 @@ get list of ioMessages by time frame for accessible publishers from ioFabric via
 
 get list of next unread ioMessages via REST call
 ```javascript
-  ioFabricClient.getNextMessages(
+  ioFogClient.getNextMessages(
     {
         'onBadRequest':
             function(errorMsg) {
@@ -110,7 +110,7 @@ get list of next unread ioMessages via REST call
 
 get container's config via REST call
 ```javascript
-  ioFabricClient.getConfig(
+  ioFogClient.getConfig(
     {
         'onBadRequest':
             function(errorMsg) {
@@ -129,11 +129,11 @@ get container's config via REST call
 ```
 
 #### WebSocket(WS) calls
-open WS Message Channel to ioFabric with callback that will be executed on open socket (in this example - sends new message via this channel)
+open WS Message Channel to ioFog with callback that will be executed on open socket (in this example - sends new message via this channel)
 ```javascript
-  ioFabricClient.wsMessageConnection(
-    function(ioFabricClient) {
-        var ioMsg = ioFabricClient.ioMessage(
+  ioFogClient.wsMessageConnection(
+    function(ioFogClient) {
+        var ioMsg = ioFogClient.ioMessage(
                  {
                      'tag': 'Bosch Camera 8798797',
                      'groupid': 'group1',
@@ -152,7 +152,7 @@ open WS Message Channel to ioFabric with callback that will be executed on open 
                      'contextdata': 'gghh',
                      'contentdata' : 'sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328'
                  });
-        ioFabricClient.wsSendMessage(ioMsg);
+        ioFogClient.wsSendMessage(ioMsg);
     },
     {
         'onMessages':
@@ -171,9 +171,9 @@ open WS Message Channel to ioFabric with callback that will be executed on open 
   );
 ```
 
-Open WS Control Channel to ioFabric
+Open WS Control Channel to ioFog
 ```javascript
-  ioFabricClient.wsControlConnection(
+  ioFogClient.wsControlConnection(
     {
         'onNewConfigSignal':
             function() {

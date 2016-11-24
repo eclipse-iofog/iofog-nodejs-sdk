@@ -3,7 +3,7 @@
 /*
  * ioTracks: ioTracks node.js SDK
  *
- * ioFabricClient lib that mimics all requests to ioFabric's Local API
+ * ioFogClient lib that mimics all requests to ioFog's Local API
  */
 
 var exec = require('child_process').exec;
@@ -22,7 +22,7 @@ const OPCODE_RECEIPT = 0xE;
 
 var ELEMENT_ID = "NOT_DEFINED"; // publisher's ID
 var SSL = false;
-var host = "iofabric";
+var host = "iofog";
 var port = 54321;
 var wsConnectAttemptsLimit = 5;
 var wsConnectMessageTimeoutAttempts = 0;
@@ -125,7 +125,7 @@ exports.ioMessage = function(opts) {
 
 
 /**
- * Posts new ioMessage to ioFabric via Local API REST call
+ * Posts new ioMessage to ioFog via Local API REST call
  *
  * @param <Object> ioMsg - ioMessage object to send
  * @param <Object> cb - object with callback functions (onError, onBadRequest, onMessageReceipt)
@@ -220,7 +220,7 @@ exports.getConfig = function(cb) {
 };
 
 /**
- * Opens WebSocket Control connection to ioFabric
+ * Opens WebSocket Control connection to ioFog
  *
  * @param <Object> cb - object with callback functions (onError, onNewConfigSignal)
  */
@@ -242,7 +242,7 @@ exports.wsControlConnection = function(cb) {
 
 
 /**
- * Opens WebSocket Message connection to ioFabric
+ * Opens WebSocket Message connection to ioFog
  *
  * @param <Function> onOpenSocketCb - function that will be triggered when connection is opened (call wsSendMessage in this function)
  * @param <Object> cb - object with callback functions (onError, onMessages, onMessageReceipt)
@@ -285,7 +285,7 @@ exports.wsMessageConnection = function(onOpenSocketCb, cb) {
 };
 
 /**
- * Sends ioMessage to ioFabric via WebSocket Message connection if it's opened.
+ * Sends ioMessage to ioFog via WebSocket Message connection if it's opened.
  *
  * @param <Object> ioMsg - ioMessage object to send
  */
@@ -302,7 +302,7 @@ exports.wsSendMessage = function(ioMsg) {
 };
 
 /**
- * Utility function sends ACKNOWLEDGE response to ioFabric
+ * Utility function sends ACKNOWLEDGE response to ioFog
  **/
 function sendAck(ws) {
     var buffer = Buffer(1);
@@ -315,7 +315,7 @@ function sendAck(ws) {
 }
 
 /**
- * Utility function sends PING to ioFabric
+ * Utility function sends PING to ioFog
  **/
 function sendPing(ws) {
     var buffer = Buffer(1);
@@ -328,7 +328,7 @@ function sendPing(ws) {
 }
 
 /**
- * Utility function sends PONG to ioFabric
+ * Utility function sends PONG to ioFog
  **/
 function sendPong(ws) {
     var buffer = Buffer(1);
@@ -413,7 +413,7 @@ function makeHttpRequest(listenerCb, relativeUrl, json, onResponseCb) {
  *
  * @param <Object> listenerCb - <Object> that contains listener callback (onError)
  * @param <String> relativeUrl - relative URL
- * @param <Function> onDataCb - callback function that will be triggered when message is received from ioFabric
+ * @param <Function> onDataCb - callback function that will be triggered when message is received from ioFog
  * @param <Function> onOpenSocketCb - function that will be triggered when connection is opened (call wsSendMessage in this function)
  */
 function openWSConnection(listenerCb, relativeUrl, onDataCb, onOpenSocketCb){
@@ -457,7 +457,7 @@ function openWSConnection(listenerCb, relativeUrl, onDataCb, onOpenSocketCb){
         }
     );
     ws.on( 'close' , function wsClose(code, message) {
-        // code : 1006  - ioFabric crashed, 1000 - CloseWebFrame from ioFabric
+        // code : 1006  - ioFog crashed, 1000 - CloseWebFrame from ioFog
         wsReconnect(relativeUrl, ws, listenerCb, onDataCb, onOpenSocketCb);
     });
     ws.on(
@@ -512,16 +512,16 @@ function processArgs(args) {
     return options;
 }
 /**
- * Utility function to reconnect to ioFabric via WebSocket.
+ * Utility function to reconnect to ioFog via WebSocket.
  *
  * @param relativeUrl - array of start options
  * @param <WebSocket> ws - webSocket that needs to be destroyed
  * @param <Object> listenerCb - <Object> that contains listener callback (onError)
- * @param <Function> onDataCb - callback function that will be triggered when message is received from ioFabric
+ * @param <Function> onDataCb - callback function that will be triggered when message is received from ioFog
  * @param <Function> onOpenSocketCb - function that will be triggered when connection is opened (call wsSendMessage in this function)
  */
 function wsReconnect(relativeUrl, ws, listenerCb, onDataCb, onOpenSocketCb){
-    console.info('Reconnecting to ioFabric via socket.');
+    console.info('Reconnecting to ioFog via socket.');
     var timeout = 0 ;
     if(wsConnectControlTimeoutAttempts < wsConnectAttemptsLimit && relativeUrl === '/v2/control/socket/id/') {
         timeout = wsConnectTimeout * Math.pow(2, wsConnectControlTimeoutAttempts);

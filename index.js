@@ -1,29 +1,29 @@
 /**
  * This module lets you easily build an ioElement.
- * It gives you all the functionality to interact with ioFabric via Local API.
+ * It gives you all the functionality to interact with ioFog via Local API.
  * Additionally some useful methods to work with ioMessage.
  *
- *  - send new message to ioFabric (sendNewMessage)
- *  - fetch next unread messages from ioFabric (getNextMessages)
+ *  - send new message to ioFog (sendNewMessage)
+ *  - fetch next unread messages from ioFog (getNextMessages)
  *  - fetch messages for time period and list of accessible publishers (getMessagesByQuery)
  *  - get config options (getConfig)
  *  - create ioMessage JSON object (ioMessage)
- *  - connect to ioFabric Control Channel via WebSocket (wsControlConnection)
- *  - connect to ioFabric Message Channel via WebSocket (wsMessageConnection)
+ *  - connect to ioFog Control Channel via WebSocket (wsControlConnection)
+ *  - connect to ioFog Message Channel via WebSocket (wsMessageConnection)
  *    and publish new message via this channel (wsSendMessage)
  *
  */
 
 'use strict';
 
-var ioFabricClient = module.exports = require('./ioFabricClient.js');
+var ioFogClient = module.exports = require('./ioFogClient.js');
 
-ioFabricClient.init('iofabric', 10500, null,
+ioFogClient.init('iofog', 54321, null,
     function() {
         /*REST calls examples*/
-        /*post new ioMessage to ioFabric via REST call*/
-        /* ioFabricClient.sendNewMessage(
-             ioFabricClient.ioMessage(
+        /*post new ioMessage to ioFog via REST call*/
+        /* ioFogClient.sendNewMessage(
+             ioFogClient.ioMessage(
                  {
                      'tag': 'Bosch Camera 8798797',
                      'groupid': 'group1',
@@ -49,9 +49,9 @@ ioFabricClient.init('iofabric', 10500, null,
              })
          );*/
 
-        /*get list of ioMessages with query to ioFabric via REST call*/
+        /*get list of ioMessages with query to ioFog via REST call*/
         /*
-         ioFabricClient.getMessagesByQuery(Date.now(), Date.now(), ['PUBLISHER'],
+         ioFogClient.getMessagesByQuery(Date.now(), Date.now(), ['PUBLISHER'],
          Object.create({
          "onBadRequest": function(errorMsg){ console.log(errorMsg); },
          "onMessagesQuery": function(timeframestart, timeframeend, messages){ console.log(timeframestart + ':' + timeframeend); console.log(messages); },
@@ -62,7 +62,7 @@ ioFabricClient.init('iofabric', 10500, null,
 
         /*get list of next unread ioMessages via REST call*/
         /*
-         ioFabricClient.getNextMessages(
+         ioFogClient.getNextMessages(
          Object.create({
          "onBadRequest": function(errorMsg){ console.log(errorMsg); },
          "onMessages": function(messages){ console.log(timeframestart + ':' + timeframeend); console.log(messages); },
@@ -72,7 +72,7 @@ ioFabricClient.init('iofabric', 10500, null,
          */
 
         /*get container's config via REST call*/
-        ioFabricClient.getConfig(
+        ioFogClient.getConfig(
             Object.create({
                 "onBadRequest": function(errorMsg){ console.log(errorMsg); },
                 "onNewConfig":function(config){
@@ -83,14 +83,14 @@ ioFabricClient.init('iofabric', 10500, null,
         );
 
         /*WS calls*/
-        /*Open WSMessage Channel to ioFabric with callback to send new message via this channel*/
+        /*Open WSMessage Channel to ioFog with callback to send new message via this channel*/
         /*
-         ioFabricClient.wsMessageConnection(
-         function(ioFabricClient) {
-         var ioMsg = ioFabricClient.ioMessage('Bosch Camera 8798797', 'group1', 2, 100, 5, 'auth', 'authgrp', 10, 'hashingggg',
+         ioFogClient.wsMessageConnection(
+         function(ioFogClient) {
+         var ioMsg = ioFogClient.ioMessage('Bosch Camera 8798797', 'group1', 2, 100, 5, 'auth', 'authgrp', 10, 'hashingggg',
          'prevhashingggg', 'nounceee', 30, 'image/jpeg', 'base64', new Buffer('gghh'),
          new Buffer('sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328testcounter'));
-         ioFabricClient.wsSendMessage(ioMsg);
+         ioFogClient.wsSendMessage(ioMsg);
          },
          Object.create({
          "onMessages": function(messages){ console.log(messages); },
@@ -100,9 +100,9 @@ ioFabricClient.init('iofabric', 10500, null,
          );
          */
 
-        /*Open WSControl Channel to ioFabric*/
+        /*Open WSControl Channel to ioFog*/
         /*
-         ioFabricClient.wsControlConnection(
+         ioFogClient.wsControlConnection(
          Object.create({
          "onNewConfigSignal": function(){ console.log("New config is awaiting,"); },
          "onError":function(error){ console.log(error); }
