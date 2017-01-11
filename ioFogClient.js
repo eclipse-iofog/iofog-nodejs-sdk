@@ -131,10 +131,11 @@ exports.ioMessage = function(opts) {
  * @param <Object> cb - object with callback functions (onError, onBadRequest, onMessageReceipt)
  */
 exports.sendNewMessage = function(ioMsg, cb) {
+    ioMsg.publisher = ELEMENT_ID;
     makeHttpRequest(
         cb ,
         '/v2/messages/new' ,
-        module.exports.ioMessageUtil.toJSON(ioMsg) ,
+        module.exports.ioMessageUtil.toJSON(ioMsg, true) ,
         function postNewMsg(body) {
             if (body.id && body.timestamp) {
                 cb.onMessageReceipt(body.id, body.timestamp);
@@ -294,6 +295,7 @@ exports.wsSendMessage = function(ioMsg) {
         console.error('wsSendMessage: socket is not open.');
         return;
     }
+    ioMsg.publisher = ELEMENT_ID;
     var msgBuffer = module.exports.ioMessageUtil.ioMsgBuffer(ioMsg);
     var opCodeBuffer = Buffer([OPCODE_MSG]);
     var lengthBuffer = Buffer(module.exports.byteUtils.intToBytes(msgBuffer.length));
