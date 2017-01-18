@@ -117,10 +117,10 @@ exports.init = function(pHost, pPort, containerId, mainCb) {
 exports.ioMessage = function(opts) {
     if(opts) {
         opts.publisherId = ELEMENT_ID;
-        return module.exports.ioMessageUtil.ioMessage(opts);
     } else {
-        return {};
+        opts = { publisherId: ELEMENT_ID};
     }
+    return module.exports.ioMessageUtil.ioMessage(opts);
 };
 
 
