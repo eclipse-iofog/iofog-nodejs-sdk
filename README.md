@@ -14,7 +14,7 @@ This module lets you easily build an ioElement. It gives you all the functionali
 
 import module:
 ```javascript
-  var ioFogClient = module.exports = require('@iotracks/container-sdk-nodejs');
+  var ioFogClient = require('@iotracks/container-sdk-nodejs');
 ```
 
 set up custom host, port and container's ID (in case of no params default values for host and port will be used: 'ioFog', 54321)
