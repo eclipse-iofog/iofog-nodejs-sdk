@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * ioTracks: ioTracks node.js SDK
+ * Eclipse ioFog: Node.js SDK
  *
  * ioFogClient lib that mimics all requests to ioFog's Local API
  */

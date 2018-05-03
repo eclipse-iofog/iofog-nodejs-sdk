@@ -1,6 +1,6 @@
-# container-sdk-nodejs
+# iofog/nodejs-sdk
 
-This module lets you easily build an ioElement. It gives you all the functionality to interact with ioFog via Local API. Additionally some useful methods to work with ioMessage.
+This module lets you easily build a micro-service. It gives you all the functionality to interact with ioFog via Local API. Additionally some useful methods to work with ioMessage.
 
  - send new message to ioFog (sendNewMessage)
  - fetch next unread messages from ioFog (getNextMessages)
@@ -14,7 +14,7 @@ This module lets you easily build an ioElement. It gives you all the functionali
 
 import module:
 ```javascript
-  var ioFogClient = require('@iotracks/container-sdk-nodejs');
+  var ioFogClient = require('@iofog/nodejs-sdk');
 ```
 
 set up custom host, port and container's ID (in case of no params default values for host and port will be used: 'ioFog', 54321)

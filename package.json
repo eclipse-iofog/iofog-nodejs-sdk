@@ -1,21 +1,21 @@
 {
-  "name": "@iotracks/container-sdk-nodejs",
-  "version": "1.1.22",
-  "description": "Native node.js SDK for ioTracks development.",
+  "name": "@iofog/nodejs-sdk",
+  "version": "0.0.1",
+  "description": "Native node.js SDK for Eclipse ioFog development.",
   "main": "ioFogClient.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/iotracks/container-sdk-nodejs.git"
+    "url": "https://github.com/ioFog/iofog-nodejs-sdk.git"
   },
-  "author": "ioTracks",
-  "license": "ISC",
+  "author": "Eclipse ioFog",
+  "license": "EPL-2.0",
   "bugs": {
-    "url": "https://github.com/iotracks/node-element-utils/issues"
+    "url": "https://github.com/ioFog/iofog-nodejs-sdk/issues"
   },
-  "homepage": "https://github.com/iotracks/container-sdk-nodejs#readme",
+  "homepage": "https://github.com/ioFog/iofog-nodejs-sdk#readme",
   "dependencies": {
     "ws": "1.0.1",
     "request": "2.70.0",
