@@ -26,15 +26,15 @@
  *
  */
 
-'use strict';
+'use strict'
 
-var ioFogClient = module.exports = require('./ioFogClient.js');
+var ioFogClient = module.exports = require('./ioFogClient.js')
 
 ioFogClient.init('iofog', 54321, null,
-    function() {
-        /*REST calls examples*/
-        /*post new ioMessage to ioFog via REST call*/
-        /* ioFogClient.sendNewMessage(
+  function () {
+    /* REST calls examples */
+    /* post new ioMessage to ioFog via REST call */
+    /* ioFogClient.sendNewMessage(
              ioFogClient.ioMessage(
                  {
                      'tag': 'Bosch Camera 8798797',
@@ -59,10 +59,10 @@ ioFogClient.init('iofog', 54321, null,
                  "onMessageReceipt": function(messageId, timestamp){ console.log(messageId + ' : ' + timestamp); },
                  "onError":function(error){ console.log(error); }
              })
-         );*/
+         ); */
 
-        /*get list of ioMessages with query to ioFog via REST call*/
-        /*
+    /* get list of ioMessages with query to ioFog via REST call */
+    /*
          ioFogClient.getMessagesByQuery(Date.now(), Date.now(), ['PUBLISHER'],
          Object.create({
          "onBadRequest": function(errorMsg){ console.log(errorMsg); },
@@ -72,8 +72,8 @@ ioFogClient.init('iofog', 54321, null,
          );
          */
 
-        /*get list of next unread ioMessages via REST call*/
-        /*
+    /* get list of next unread ioMessages via REST call */
+    /*
          ioFogClient.getNextMessages(
          Object.create({
          "onBadRequest": function(errorMsg){ console.log(errorMsg); },
@@ -83,20 +83,20 @@ ioFogClient.init('iofog', 54321, null,
          );
          */
 
-        /*get container's config via REST call*/
-        ioFogClient.getConfig(
-            Object.create({
-                "onBadRequest": function(errorMsg){ console.log(errorMsg); },
-                "onNewConfig":function(config){
-                    console.log(config);
-                },
-                "onError":function(error){ console.log(error); }
-            })
-        );
+    /* get container's config via REST call */
+    ioFogClient.getConfig(
+      Object.create({
+        'onBadRequest': function (errorMsg) { console.log(errorMsg) },
+        'onNewConfig': function (config) {
+          console.log(config)
+        },
+        'onError': function (error) { console.log(error) }
+      })
+    )
 
-        /*WS calls*/
-        /*Open WSMessage Channel to ioFog with callback to send new message via this channel*/
-        /*
+    /* WS calls */
+    /* Open WSMessage Channel to ioFog with callback to send new message via this channel */
+    /*
          ioFogClient.wsMessageConnection(
          function(ioFogClient) {
          var ioMsg = ioFogClient.ioMessage('Bosch Camera 8798797', 'group1', 2, 100, 5, 'auth', 'authgrp', 10, 'hashingggg',
@@ -112,8 +112,8 @@ ioFogClient.init('iofog', 54321, null,
          );
          */
 
-        /*Open WSControl Channel to ioFog*/
-        /*
+    /* Open WSControl Channel to ioFog */
+    /*
          ioFogClient.wsControlConnection(
          Object.create({
          "onNewConfigSignal": function(){ console.log("New config is awaiting,"); },
@@ -121,13 +121,5 @@ ioFogClient.init('iofog', 54321, null,
          })
          );
          */
-    }
-);
-
-
-
-
-
-
-
-
+  }
+)
