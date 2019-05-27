@@ -4,7 +4,9 @@
   "description": "Native node.js SDK for Eclipse ioFog development.",
   "main": "ioFogClient.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "standard": "standard",
+    "snyk": "snyk monitor"
   },
   "repository": {
     "type": "git",
@@ -20,5 +22,9 @@
     "console-stamp": "0.2.2",
     "request": "2.88.0",
     "ws": "7.0.0"
+  },
+  "devDependencies": {
+    "snyk": "1.167.2",
+    "standard": "12.0.1"
   }
 }

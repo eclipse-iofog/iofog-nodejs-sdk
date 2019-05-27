@@ -43,7 +43,7 @@ jobs:
           SNYK_TOKEN: $(snykToken)
 
       - script: |
-          npm test
+          echo "npm test"
         displayName: 'unit tests'
 
       - script: |
