@@ -4,6 +4,7 @@
   "description": "Native node.js SDK for Eclipse ioFog development.",
   "main": "ioFogClient.js",
   "scripts": {
+    "standard": "standard",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,8 +18,11 @@
   },
   "homepage": "https://github.com/ioFog/iofog-nodejs-sdk#readme",
   "dependencies": {
-    "ws": "1.0.1",
-    "request": "2.70.0",
-    "console-stamp": "0.2.2"
+    "console-stamp": "0.2.2",
+    "request": "2.88.0",
+    "ws": "7.2.0"
+  },
+  "devDependencies": {
+    "standard": "^14.3.1"
   }
 }
