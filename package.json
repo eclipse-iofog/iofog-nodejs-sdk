@@ -4,8 +4,8 @@
   "description": "Native node.js SDK for Eclipse ioFog development.",
   "main": "ioFogClient.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "standard": "standard"
+    "standard": "standard",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -20,9 +20,9 @@
   "dependencies": {
     "console-stamp": "0.2.2",
     "request": "2.88.0",
-    "ws": "7.0.0"
+    "ws": "7.2.0"
   },
   "devDependencies": {
-    "standard": "12.0.1"
+    "standard": "^14.3.1"
   }
 }

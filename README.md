@@ -14,7 +14,7 @@ This module lets you easily build a micro-service. It gives you all the function
 
 import module:
 ```javascript
-  const ioFogClient = require('@iofog/nodejs-sdk');
+  var ioFogClient = require('@iofog/nodejs-sdk');
 ```
 
 set up custom host, port and container's ID (in case of no params default values for host and port will be used: 'ioFog', 54321)
@@ -133,7 +133,7 @@ open WS Message Channel to ioFog with callback that will be executed on open soc
 ```javascript
   ioFogClient.wsMessageConnection(
     function(ioFogClient) {
-        const ioMsg = ioFogClient.ioMessage(
+        var ioMsg = ioFogClient.ioMessage(
                  {
                      'tag': 'Bosch Camera 8798797',
                      'groupid': 'group1',

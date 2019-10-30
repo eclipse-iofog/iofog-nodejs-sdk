@@ -18,9 +18,9 @@
  * ioFogClient lib that mimics all requests to ioFog's Local API
  */
 
-const exec = require('child_process').exec
-const request = require('request')
-const WebSocket = require('ws')
+var exec = require('child_process').exec
+var request = require('request')
+var WebSocket = require('ws')
 
 exports.ioMessageUtil = require('./lib/ioMessageUtil')
 exports.byteUtils = require('./lib/byteUtils')
@@ -32,17 +32,17 @@ const OPCODE_CONTROL_SIGNAL = 0xC
 const OPCODE_MSG = 0xD
 const OPCODE_RECEIPT = 0xE
 
-let ELEMENT_ID = 'NOT_DEFINED' // publisher's ID
-let SSL = false
-let host = 'iofog'
-let port = 54321
-let wsConnectAttemptsLimit = 5
-let wsConnectMessageTimeoutAttempts = 0
-let wsConnectControlTimeoutAttempts = 0
-let wsConnectTimeout = 1000
+var ELEMENT_ID = 'NOT_DEFINED' // publisher's ID
+var SSL = false
+var host = 'iofog'
+var port = 54321
+var wsConnectAttemptsLimit = 5
+var wsConnectMessageTimeoutAttempts = 0
+var wsConnectControlTimeoutAttempts = 0
+var wsConnectTimeout = 1000
 
-let wsMessage
-let wsControl
+var wsMessage
+var wsControl
 
 require('console-stamp')(
   console,
@@ -64,7 +64,7 @@ require('console-stamp')(
  * @param <Function> mainCb - main function to perform when all set up and checks are done
  */
 exports.init = function (pHost, pPort, containerId, mainCb) {
-  const options = processArgs(process.argv)
+  var options = processArgs(process.argv)
 
   if (options['--id']) {
     ELEMENT_ID = options['--id']
@@ -219,7 +219,7 @@ exports.getConfig = function (cb) {
     },
     function getNewConfig (body) {
       if (body.config) {
-        let configJSON = {}
+        var configJSON = {}
         try {
           configJSON = JSON.parse(body.config)
         } catch (error) {
@@ -241,7 +241,7 @@ exports.wsControlConnection = function (cb) {
     cb,
     '/v2/control/socket/id/',
     function wsHandleControlData (data, flags) {
-      if (flags.binary && data.length > 0) {
+      if (module.exports.byteUtils.isBinary(data) && data.length > 0) {
         const opcode = data[0]
         if (opcode === OPCODE_CONTROL_SIGNAL) {
           cb.onNewConfigSignal()
@@ -263,26 +263,26 @@ exports.wsMessageConnection = function (onOpenSocketCb, cb) {
     cb,
     '/v2/message/socket/id/',
     function wsHandleMessageData (data, flags) {
-      if (flags.binary && data.length) {
-        const opcode = data[0]; let pos
+      if (module.exports.byteUtils.isBinary(data) && data.length) {
+        const opcode = data[0]; var pos
         if (opcode === OPCODE_MSG) {
           pos = 1
-          const msgLength = data.readUIntBE(pos, 4)
+          var msgLength = data.readUIntBE(pos, 4)
           pos += 4
-          const bytes = data.slice(pos, msgLength + pos)
-          const msg = module.exports.ioMessageUtil.ioMessageFromBuffer(bytes)
+          var bytes = data.slice(pos, msgLength + pos)
+          var msg = module.exports.ioMessageUtil.ioMessageFromBuffer(bytes)
           cb.onMessages([msg])
           sendAck(wsMessage)
         } else if (opcode === OPCODE_RECEIPT) {
-          let size = data[1]
+          var size = data[1]
           pos = 3
-          let messageId = ''
+          var messageId = ''
           if (size) {
             messageId = data.slice(pos, pos + size).toString('utf-8')
             pos += size
           }
           size = data[2]
-          let timestamp = 0
+          var timestamp = 0
           if (size) {
             timestamp = data.readUIntBE(pos, size)
           }
@@ -306,10 +306,10 @@ exports.wsSendMessage = function (ioMsg) {
     return
   }
   ioMsg.publisher = ELEMENT_ID
-  const msgBuffer = module.exports.ioMessageUtil.ioMsgBuffer(ioMsg)
-  const opCodeBuffer = Buffer.from([OPCODE_MSG])
-  const lengthBuffer = Buffer.from(module.exports.byteUtils.intToBytes(msgBuffer.length))
-  const resultBuffer = Buffer.concat([ opCodeBuffer, lengthBuffer, msgBuffer ], opCodeBuffer.length + lengthBuffer.length + msgBuffer.length)
+  var msgBuffer = module.exports.ioMessageUtil.ioMsgBuffer(ioMsg)
+  var opCodeBuffer = Buffer.from([OPCODE_MSG])
+  var lengthBuffer = Buffer.from(module.exports.byteUtils.intToBytes(msgBuffer.length))
+  var resultBuffer = Buffer.concat([opCodeBuffer, lengthBuffer, msgBuffer], opCodeBuffer.length + lengthBuffer.length + msgBuffer.length)
   wsMessage.send(resultBuffer, { binary: true, mask: true })
 }
 
@@ -317,7 +317,7 @@ exports.wsSendMessage = function (ioMsg) {
  * Utility function sends ACKNOWLEDGE response to ioFog
  **/
 function sendAck (ws) {
-  const buffer = Buffer.alloc(1)
+  var buffer = Buffer.alloc(1)
   buffer[0] = OPCODE_ACK
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(buffer, { binary: true, mask: true })
@@ -327,8 +327,7 @@ function sendAck (ws) {
 }
 
 /**
- * Utility function sends PING to ioFog
- * Commented out because not used at the moment
+ * Not used - Utility function sends PING to ioFog
  **/
 // function sendPing (ws) {
 //   const buffer = Buffer.alloc(1)
@@ -431,6 +430,7 @@ function makeHttpRequest (listenerCb, relativeUrl, json, onResponseCb) {
  */
 function openWSConnection (listenerCb, relativeUrl, onDataCb, onOpenSocketCb) {
   const endpoint = getURL(getWSProtocol(), relativeUrl + ELEMENT_ID)
+  //   let pingFlag
   const ws = new WebSocket(
     endpoint,
     {
@@ -455,7 +455,7 @@ function openWSConnection (listenerCb, relativeUrl, onDataCb, onOpenSocketCb) {
   ws.on(
     'ping',
     function wsPing (data, flags) {
-      if (flags.binary && data.length === 1 && data[0] === OPCODE_PING) {
+      if (module.exports.byteUtils.isBinary(data) && data.length === 1 && data[0] === OPCODE_PING) {
         sendPong(ws)
       }
     }
@@ -463,7 +463,8 @@ function openWSConnection (listenerCb, relativeUrl, onDataCb, onOpenSocketCb) {
   ws.on(
     'pong',
     function wsPong (data, flags) {
-      if (flags.binary && data.length === 1 && data[0] === OPCODE_PONG) {
+      if (module.exports.byteUtils.isBinary(data) && data.length === 1 && data[0] === OPCODE_PONG) {
+        // pingFlag = null
       }
     }
   )

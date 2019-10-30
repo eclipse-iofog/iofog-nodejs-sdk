@@ -86,11 +86,11 @@ ioFogClient.init('iofog', 54321, null,
     /* get container's config via REST call */
     ioFogClient.getConfig(
       Object.create({
-        'onBadRequest': function (errorMsg) { console.log(errorMsg) },
-        'onNewConfig': function (config) {
+        onBadRequest: function (errorMsg) { console.log(errorMsg) },
+        onNewConfig: function (config) {
           console.log(config)
         },
-        'onError': function (error) { console.log(error) }
+        onError: function (error) { console.log(error) }
       })
     )
 
