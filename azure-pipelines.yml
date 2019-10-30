@@ -10,9 +10,6 @@ trigger:
     exclude:
       - README.md
 
-pr:
-  - master
-
 variables:
   group: 'pipelines'
 
@@ -38,7 +35,7 @@ jobs:
         displayName: 'Standardjs report'
 
       - script: |
-          echo "npm test"
+          npm test
         displayName: 'unit tests'
 
       - script: |
