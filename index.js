@@ -28,7 +28,7 @@
 
 'use strict'
 
-var ioFogClient = module.exports = require('./ioFogClient.js')
+const ioFogClient = module.exports = require('./ioFogClient.js')
 
 ioFogClient.init('iofog', 54321, null,
   function () {
@@ -99,7 +99,7 @@ ioFogClient.init('iofog', 54321, null,
     /*
          ioFogClient.wsMessageConnection(
          function(ioFogClient) {
-         var ioMsg = ioFogClient.ioMessage('Bosch Camera 8798797', 'group1', 2, 100, 5, 'auth', 'authgrp', 10, 'hashingggg',
+         const ioMsg = ioFogClient.ioMessage('Bosch Camera 8798797', 'group1', 2, 100, 5, 'auth', 'authgrp', 10, 'hashingggg',
          'prevhashingggg', 'nounceee', 30, 'image/jpeg', 'base64', new Buffer('gghh'),
          new Buffer('sdkjhwrtiy8wrtgSDFOiuhsrgowh4touwsdhsDFDSKJhsdkljasjklweklfjwhefiauhw98p328testcounter'));
          ioFogClient.wsSendMessage(ioMsg);
