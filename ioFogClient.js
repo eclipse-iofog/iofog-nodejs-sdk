@@ -297,6 +297,32 @@ exports.wsMessageConnection = function (onOpenSocketCb, cb) {
 }
 
 /**
+ * Closes WebSocket Control connection if it's opened.
+ *
+ * @param <Function> cb - Function called after ws closed successfully
+ */
+exports.wsCloseControlConnection = function (cb) {
+  if (wsControl) {
+    wsControl.on('close', cb)
+    wsControl.close(1000)
+  }
+  setGlobalWS('/v2/control/socket/id/', null)
+}
+
+/**
+ * Closes WebSocket Message connection if it's opened.
+ *
+ * @param <Function> cb - Function called after ws closed successfully
+ */
+exports.wsCloseMessageConnection = function (cb) {
+  if (wsMessage) {
+    wsMessage.on('close', cb)
+    wsMessage.close(1000)
+  }
+  setGlobalWS('/v2/message/socket/id/', null)
+}
+
+/**
  * Sends ioMessage to ioFog via WebSocket Message connection if it's opened.
  *
  * @param <Object> ioMsg - ioMessage object to send
@@ -334,7 +360,7 @@ function sendAck (ws) {
 //   const buffer = Buffer.alloc(1)
 //   buffer[0] = OPCODE_PING
 //   if (ws && ws.readyState === WebSocket.OPEN) {
-//     ws.ping(buffer, { binary: true, mask: true })
+//     ws.ping(buffer, true)
 //   } else {
 //     console.warn('Unable to send PING: WS connection isn\'t open. ')
 //   }
@@ -347,7 +373,7 @@ function sendPong (ws) {
   const buffer = Buffer.alloc(1)
   buffer[0] = OPCODE_PONG
   if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.pong(buffer, { binary: true, mask: true })
+    ws.pong(buffer, true)
   } else {
     console.warn('Unable to send PONG: WS connection isn\'t open. ')
   }
@@ -440,9 +466,7 @@ function openWSConnection (listenerCb, relativeUrl, onDataCb, onOpenSocketCb) {
   )
   ws.on(
     'message',
-    function handleWsData (data, flags) {
-      onDataCb(data, flags)
-    }
+    onDataCb
   )
   ws.on(
     'error',
@@ -470,7 +494,8 @@ function openWSConnection (listenerCb, relativeUrl, onDataCb, onOpenSocketCb) {
     }
   )
   ws.on('close', function wsClose (code, message) {
-    // code : 1006  - ioFog crashed, 1000 - CloseWebFrame from ioFog
+    // code : 1006  - ioFog crashed, 1000 - CloseWebFrame from ioFog,
+    if (code === 1000) { return }
     wsReconnect(relativeUrl, ws, listenerCb, onDataCb, onOpenSocketCb)
   })
   ws.on(

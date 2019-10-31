@@ -7,6 +7,9 @@
     "standard": "standard",
     "test": "mocha"
   },
+  "standard": {
+    "globals": ["BigInt"]
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ioFog/iofog-nodejs-sdk.git"
