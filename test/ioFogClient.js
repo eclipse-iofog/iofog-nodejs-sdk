@@ -10,12 +10,13 @@
  * *******************************************************************************
  */
 
-/* globals describe, it, beforeEach, before, after */
+/* globals describe, it, beforeEach, afterEach, before, after */
 
 const expect = require('chai').expect
 const sinon = require('sinon')
 const proxyquire = require('proxyquire')
 const request = require('request')
+const WS = require('ws')
 
 const execStub = sinon.stub()
 const ioFogClient = proxyquire('../ioFogClient', {
@@ -87,11 +88,11 @@ describe('ioFogClient', () => {
         sequencetotal: 0,
         priority: 0,
         version: 4,
-        timestamp: 0,
+        timestamp: typeof BigInt === 'function' ? BigInt(0) : 0,
         publisher: 'NOT_DEFINED',
         authid: '',
         authgroup: '',
-        chainposition: 0,
+        chainposition: typeof BigInt === 'function' ? BigInt(0) : 0,
         hash: '',
         previoushash: '',
         nonce: '',
@@ -112,11 +113,11 @@ describe('ioFogClient', () => {
         sequencetotal: 0,
         priority: 0,
         version: 4,
-        timestamp: 0,
+        timestamp: typeof BigInt === 'function' ? BigInt(0) : 0,
         publisher: 'NOT_DEFINED',
         authid: '',
         authgroup: '',
-        chainposition: 0,
+        chainposition: typeof BigInt === 'function' ? BigInt(0) : 0,
         hash: '',
         previoushash: '',
         nonce: '',
@@ -138,11 +139,11 @@ describe('ioFogClient', () => {
         sequencetotal: 0,
         priority: 0,
         version: 4,
-        timestamp: 0,
+        timestamp: typeof BigInt === 'function' ? BigInt(0) : 0,
         publisher,
         authid: '',
         authgroup: '',
-        chainposition: 0,
+        chainposition: typeof BigInt === 'function' ? BigInt(0) : 0,
         hash: '',
         previoushash: '',
         nonce: '',
@@ -183,7 +184,8 @@ describe('ioFogClient', () => {
         ...ioMessage,
         id: '',
         version: 4,
-        timestamp: 0,
+        timestamp: typeof BigInt === 'function' ? BigInt(0) : 0,
+        chainposition: typeof BigInt === 'function' ? BigInt(12) : 12,
         publisher: 'NOT_DEFINED'
       }
       expect(ioFogClient.ioMessage(ioMessage)).to.deep.equal(expectedIOMessage)
@@ -573,7 +575,137 @@ describe('ioFogClient', () => {
     })
   })
 
-  describe('wsControlConnection', () => {
+  describe('Websockets', () => {
+    const host = 'localhost'
+    const port = 1234
+    const publisher = 'test-publisher'
+    const controlURL = `/v2/control/socket/id/${publisher}`
+    const messageURL = `/v2/message/socket/id/${publisher}`
+    let mockServer
 
+    beforeEach((done) => {
+      execStub.callsFake((command, cb) => {
+        cb(null, null, null)
+      })
+      ioFogClient.init(host, port, publisher, () => {
+        done()
+      })
+    })
+
+    afterEach(() => {
+      if (mockServer) {
+        mockServer.close()
+        mockServer = null
+      }
+    })
+
+    it('Should open a control WS and receive new config signal', (done) => {
+      const controlServer = new WS.Server({ port, path: controlURL })
+      mockServer = controlServer
+      // Test is considered done when a new config signal is received
+      const onNewConfigSignal = () => {
+        ioFogClient.wsCloseControlConnection(() => {
+          done()
+        })
+      }
+      const onError = (e) => {
+        done(e)
+      }
+      // Mock server that replies with a OPCODE_CONTROL_SIGNAL to any incoming connection
+      controlServer.on('connection', (ws) => {
+        const opCodeControlSignal = Buffer.from([12]) // OPCODE_CONTROL_SIGNAL
+        ws.send(opCodeControlSignal)
+      })
+
+      ioFogClient.wsControlConnection(
+        {
+          onNewConfigSignal,
+          onError
+        }
+      )
+    })
+
+    it('Should open a message WS, send a message and receive a message receipt', (done) => {
+      const messageServer = new WS.Server({ port, path: messageURL })
+      mockServer = messageServer
+      const ioMessage = ioFogClient.ioMessage({})
+
+      // Test is considered done when the mock server has received a ioMessage, and responded with a receipt
+      const onMessageReceipt = () => {
+        ioFogClient.wsCloseMessageConnection(() => {
+          done()
+        })
+      }
+      const onError = (e) => {
+        done(e)
+      }
+
+      // Mock server will respond with OPCODE_RECEIPT if it receives a message starting with OPCODE_MSG
+      messageServer.on('connection', socket => {
+        socket.on('message', data => {
+          if (data[0] === 13) { // OPCODE_MSG
+            socket.send(Buffer.from([14])) // OPCODE_RECEIPT
+          }
+        })
+      })
+
+      ioFogClient.wsMessageConnection((ioFogClient) => {
+        ioFogClient.wsSendMessage(ioMessage)
+      }, {
+        onMessageReceipt,
+        onError
+      })
+    })
+
+    it('Should open a message WS, send a message and receive it back', (done) => {
+      const messageServer = new WS.Server({ port, path: messageURL })
+      mockServer = messageServer
+      const expectedIOMessage = {
+        tag: 'tag',
+        groupid: 'groupid',
+        sequencenumber: 5,
+        sequencetotal: 10,
+        priority: 2,
+        authid: 'authid',
+        authgroup: 'authgroup',
+        chainposition: typeof BigInt === 'function' ? BigInt(12) : 12,
+        publisher,
+        hash: 'hash',
+        previoushash: 'previoushash',
+        nonce: 'nonce',
+        difficultytarget: 4,
+        infotype: 'infotype',
+        infoformat: 'infoformat',
+        contextdata: Buffer.from('contextdata'),
+        contentdata: Buffer.from('contentdata')
+      }
+      const ioMessage = ioFogClient.ioMessage({ ...expectedIOMessage })
+      // Test is considered done when the mock server has received a ioMessage, and responded with a receipt
+      const onMessages = (messages) => {
+        expect(messages).to.deep.equal([expectedIOMessage])
+        ioFogClient.wsCloseMessageConnection(() => {
+          done()
+        })
+      }
+      const onError = (e) => {
+        done(e)
+      }
+
+      // Mock server will respond with same ioMessage if it receives a message starting with OPCODE_MSG
+      messageServer.on('connection', socket => {
+        socket.on('message', data => {
+          if (data[0] === 13) { // OPCODE_MSG
+            socket.send(data)
+          }
+        })
+      })
+
+      ioFogClient.wsMessageConnection((ioFogClient) => {
+        ioFogClient.wsSendMessage(ioMessage)
+      }, {
+        onMessages,
+        onError
+      })
+    })
   })
 })
