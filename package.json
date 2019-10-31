@@ -8,7 +8,9 @@
     "test": "mocha"
   },
   "standard": {
-    "globals": ["BigInt"]
+    "globals": [
+      "BigInt"
+    ]
   },
   "repository": {
     "type": "git",
