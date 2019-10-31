@@ -23,6 +23,9 @@ stages:
         versionSpec: '12.x'
       displayName: 'Install Node.js'
     - script: |
+        npm audit
+      displayName: 'Audit'
+    - script: |
         npm i
       displayName: 'Install dependencies'
     - script: |
