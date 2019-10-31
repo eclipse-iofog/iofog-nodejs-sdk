@@ -16,9 +16,15 @@ variables:
 stages:
 - stage: Preflight
   jobs:
-  - job: Coding_Standards
+  - job: Build
     steps:
-    # When we are ready to enforce standardjs, remove redirection and remove '|| true' from the standard script in package.json
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '12.x'
+      displayName: 'Install Node.js'
+    - script: |
+        npm i
+      displayName: 'Install dependencies'
     - script: |
         npm run standard
       displayName: 'Standardjs report'
