@@ -14,9 +14,9 @@ variables:
   group: 'pipelines'
 
 stages:
-- stage: Build
+- stage: Preflight
   jobs:
-  - job: Pre-flight checks
+  - job: Coding_Standards
     steps:
     # When we are ready to enforce standardjs, remove redirection and remove '|| true' from the standard script in package.json
     - script: |
@@ -24,7 +24,7 @@ stages:
       displayName: 'Standardjs report'
 - stage: Test
   jobs:
-  - job: Node 8
+  - job: Node_8
     pool:
       vmImage: 'Ubuntu-16.04'
     steps:
@@ -33,7 +33,7 @@ stages:
         versionSpec: '8.x'
       displayName: 'Install Node.js'
     - template: azure-templates/test.template.yml
-  - job: Node 10
+  - job: Node_10
     pool:
       vmImage: 'Ubuntu-16.04'
     steps:
@@ -42,7 +42,7 @@ stages:
         versionSpec: '10.x'
       displayName: 'Install Node.js'
     - template: azure-templates/test.template.yml
-  - job: Node 12
+  - job: Node_12
     pool:
       vmImage: 'Ubuntu-16.04'
     steps:
