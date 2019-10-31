@@ -22,36 +22,29 @@ stages:
     - script: |
         npm run standard
       displayName: 'Standardjs report'
-- stage: Node 8
+- stage: Test
   jobs:
-  - job: Node_SDK
+  - job: Node 8
     pool:
       vmImage: 'Ubuntu-16.04'
-
     steps:
     - task: NodeTool@0
       inputs:
         versionSpec: '8.x'
       displayName: 'Install Node.js'
     - template: azure-templates/test.template.yml
-- stage: Node 10
-  jobs:
-  - job: Node_SDK
+  - job: Node 10
     pool:
       vmImage: 'Ubuntu-16.04'
-
     steps:
     - task: NodeTool@0
       inputs:
         versionSpec: '10.x'
       displayName: 'Install Node.js'
     - template: azure-templates/test.template.yml
-- stage: Node 12
-  jobs:
-  - job: Node_SDK
+  - job: Node 12
     pool:
       vmImage: 'Ubuntu-16.04'
-
     steps:
     - task: NodeTool@0
       inputs:
