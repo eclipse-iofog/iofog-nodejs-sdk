@@ -62,7 +62,7 @@ stages:
     - template: azure-templates/test.template.yml
 - stage: Artifacts
   jobs:
-  - job: 'Publish artifacts'
+  - job: 'Publish_Artifacts'
     steps:
     - task: NodeTool@0
       inputs:
