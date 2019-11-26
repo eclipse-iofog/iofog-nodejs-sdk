@@ -1,7 +1,7 @@
 trigger:
   tags:
     include:
-      - v.*
+      - v*
   branches:
     include:
       - develop
@@ -60,3 +60,27 @@ stages:
         versionSpec: '12.x'
       displayName: 'Install Node.js'
     - template: azure-templates/test.template.yml
+- stage: Artifacts
+  jobs:
+  - job: 'Publish_Artifacts'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '12.x'
+      displayName: 'Install Node.js'
+    - script: |
+        npm pack
+      displayName: 'Package artifact'
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: $(System.DefaultWorkingDirectory)
+        TargetFolder: $(Build.ArtifactStagingDirectory)
+        Contents: |
+          *.tgz
+        OverWrite: true
+      displayName: 'Artifacts to publish'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'sdk'
+      displayName: 'Publish artifacts'
