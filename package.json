@@ -24,6 +24,8 @@
   "homepage": "https://github.com/ioFog/iofog-nodejs-sdk#readme",
   "dependencies": {
     "console-stamp": "0.2.2",
+    "path": "^0.12.7",
+    "pino": "^6.6.1",
     "request": "2.88.0",
     "ws": "7.2.0"
   },

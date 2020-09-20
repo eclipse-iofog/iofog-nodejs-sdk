@@ -24,6 +24,7 @@ const WebSocket = require('ws')
 
 exports.ioMessageUtil = require('./lib/ioMessageUtil')
 exports.byteUtils = require('./lib/byteUtils')
+exports.logger = require('./logger')
 
 const OPCODE_PING = 0x9
 const OPCODE_PONG = 0xA
@@ -44,6 +45,8 @@ const wsConnectTimeout = 1000
 
 let wsMessage
 let wsControl
+
+const logger = exports.logger
 
 require('console-stamp')(
   console,
@@ -92,12 +95,12 @@ exports.init = function (pHost, pPort, containerId, mainCb) {
   exec('ping -c 3 ' + host, function checkHost (error, stdout, stderr) {
     if (stderr || error) {
       if (stderr) {
-        console.log('STERR :\n', stderr)
+        logger.error(stderr)
       }
       if (error) {
-        console.log('ERROR :\n', error)
+        logger.error(error)
       }
-      console.warn('Host: \'' + host + '\' is not reachable. Changing to \'127.0.0.1\'')
+      logger.warn('Host: \'' + host + '\' is not reachable. Changing to \'127.0.0.1\'')
       host = '127.0.0.1'
     }
     mainCb()
@@ -202,7 +205,7 @@ exports.getMessagesByQuery = function (startdate, enddate, publishers, cb) {
       }
     )
   } else {
-    console.error('getMessagesByQuery: Publishers input is not array!')
+    logger.error('getMessagesByQuery: Publishers input is not array!')
   }
 }
 
@@ -224,7 +227,7 @@ exports.getConfig = function (cb) {
         try {
           configJSON = JSON.parse(body.config)
         } catch (error) {
-          console.error('There was an error parsing config to JSON: ', error)
+          logger.error(error, 'There was an error parsing config to JSON')
         }
         cb.onNewConfig(configJSON)
       }
@@ -329,7 +332,7 @@ exports.wsCloseMessageConnection = function (cb) {
  */
 exports.wsSendMessage = function (ioMsg) {
   if (!wsMessage || wsMessage.readyState !== WebSocket.OPEN) {
-    console.error('wsSendMessage: socket is not open.')
+    logger.error('wsSendMessage: socket is not open.')
     return
   }
   ioMsg.publisher = ELEMENT_ID
@@ -349,7 +352,7 @@ function sendAck (ws) {
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(buffer, { binary: true, mask: true })
   } else {
-    console.warn('Unable to send ACKNOWLEDGE: WS connection isn\'t open. ')
+    logger.warn('Unable to send ACKNOWLEDGE: WS connection isn\'t open. ')
   }
 }
 
@@ -375,7 +378,7 @@ function sendPong (ws) {
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.pong(buffer, true)
   } else {
-    console.warn('Unable to send PONG: WS connection isn\'t open. ')
+    logger.warn('Unable to send PONG: WS connection isn\'t open. ')
   }
 }
 
@@ -509,7 +512,7 @@ function openWSConnection (listenerCb, relativeUrl, onDataCb, onOpenSocketCb) {
           wsConnectMessageTimeoutAttempts = 0
           break
         default:
-          console.warn('No global socket defined.')
+          logger.warn('No global socket defined.')
       }
       if (onOpenSocketCb) {
         onOpenSocketCb(module.exports)
@@ -528,7 +531,7 @@ function setGlobalWS (relativeUrl, ws) {
       wsMessage = ws
       break
     default:
-      console.warn('No global socket defined.')
+      logger.warn('No global socket defined.')
   }
 }
 
@@ -559,7 +562,7 @@ function processArgs (args) {
  * @param <Function> onOpenSocketCb - function that will be triggered when connection is opened (call wsSendMessage in this function)
  */
 function wsReconnect (relativeUrl, ws, listenerCb, onDataCb, onOpenSocketCb) {
-  console.info('Reconnecting to ioFog via socket.')
+  logger.info('Reconnecting to ioFog via socket.')
   let timeout = 0
   if (wsConnectControlTimeoutAttempts < wsConnectAttemptsLimit && relativeUrl === '/v2/control/socket/id/') {
     timeout = wsConnectTimeout * Math.pow(2, wsConnectControlTimeoutAttempts)

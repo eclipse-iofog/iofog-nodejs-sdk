@@ -17,6 +17,7 @@ const sinon = require('sinon')
 const proxyquire = require('proxyquire')
 const request = require('request')
 const WS = require('ws')
+const logger = require('../logger')
 
 const execStub = sinon.stub()
 const ioFogClient = proxyquire('../ioFogClient', {
@@ -26,17 +27,17 @@ const ioFogClient = proxyquire('../ioFogClient', {
 describe('ioFogClient', () => {
   describe('init', () => {
     it('Should set host to 127.0.0.1', (done) => {
-      const logStub = sinon.stub(console, 'log')
-      const warnStub = sinon.stub(console, 'warn')
+      const error = 'This is an error'
+      const stdError = 'This was on stderr'
+      const logStub = sinon.stub(logger, 'error')
+      const warnStub = sinon.stub(logger, 'warn')
       const host = 'iofog-test'
       const protocol = 'protocol'
       const port = 1234
-      const error = 'This is an error'
-      const stdError = 'This was on stderr'
       const cb = () => {
         expect(execStub.args[0][0]).to.equal(`ping -c 3 ${host}`)
-        expect(logStub.args[0]).to.deep.equal(['STERR :\n', stdError])
-        expect(logStub.args[1]).to.deep.equal(['ERROR :\n', error])
+        expect(logStub.args[0]).to.deep.equal([stdError])
+        expect(logStub.args[1]).to.deep.equal([error])
         expect(warnStub.args[0][0]).to.equal(`Host: '${host}' is not reachable. Changing to '127.0.0.1'`)
         expect(ioFogClient.getURL(protocol, '')).to.equal(`${protocol}://127.0.0.1:${port}`)
         logStub.restore()
@@ -418,7 +419,7 @@ describe('ioFogClient', () => {
     })
 
     it('Should fail if publishers in not an array', () => {
-      const errorStub = sinon.stub(console, 'error')
+      const errorStub = sinon.stub(logger, 'error')
       ioFogClient.getMessagesByQuery(startdate, enddate, null, {})
       expect(errorStub.args[0]).to.deep.equal(['getMessagesByQuery: Publishers input is not array!'])
       errorStub.restore()
