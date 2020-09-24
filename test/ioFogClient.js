@@ -18,6 +18,8 @@ const proxyquire = require('proxyquire')
 const request = require('request')
 const WS = require('ws')
 const logger = require('../logger')
+const FileLogger = require('../fileLogger')
+const fs = require('fs')
 
 const execStub = sinon.stub()
 const ioFogClient = proxyquire('../ioFogClient', {
@@ -707,6 +709,49 @@ describe('ioFogClient', () => {
         onMessages,
         onError
       })
+    })
+  })
+  describe('FileLogger', function () {
+    const dir = '/temp/log/'
+    const nestedDir = '/temp/log/iofog-microservices/'
+    const warnStub = sinon.stub(FileLogger.prototype, 'warn')
+    const infoStub = sinon.stub(FileLogger.prototype, 'info')
+    const info = 'I am just info'
+    const warning = 'Could not open the log file /var/log/not-exits/my-microservice.log. Reverting to std output logging'
+
+    after(function () {
+      sinon.restore()
+      if (fs.existsSync(dir)) {
+        fs.rmdir(dir)
+      }
+      if (fs.existsSync(nestedDir)) {
+        fs.rmdir(nestedDir)
+      }
+    })
+
+    it('file Logger should warn when directory is not created', (done) => {
+      const fileLogger = new FileLogger('my-microservice.log', '/var/log/not-exits/')
+      expect(warnStub.args[0]).to.deep.equal([warning])
+      fileLogger.info('I am just info')
+      expect(infoStub.args[0]).to.deep.equal([info])
+      warnStub.restore()
+      done()
+    })
+
+    it('file Logger should create directory', (done) => {
+      const fileLogger = new FileLogger('my-microservice.log', dir)
+      warnStub.neverCalledWith(warning)
+      fileLogger.info('I am just info')
+      expect(infoStub.args[0]).to.deep.equal([info])
+      done()
+    })
+
+    it('file Logger should create nested directory', (done) => {
+      const fileLogger = new FileLogger('my-microservice.log', nestedDir)
+      warnStub.neverCalledWith(warning)
+      fileLogger.info('I am just info')
+      expect(infoStub.args[0]).to.deep.equal([info])
+      done()
     })
   })
 })

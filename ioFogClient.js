@@ -24,7 +24,8 @@ const WebSocket = require('ws')
 
 exports.ioMessageUtil = require('./lib/ioMessageUtil')
 exports.byteUtils = require('./lib/byteUtils')
-exports.logger = require('./logger')
+exports.Logger = require('./logger')
+exports.FileLogger = require('./fileLogger')
 
 const OPCODE_PING = 0x9
 const OPCODE_PONG = 0xA
@@ -46,7 +47,7 @@ const wsConnectTimeout = 1000
 let wsMessage
 let wsControl
 
-const logger = exports.logger
+const logger = exports.Logger
 
 require('console-stamp')(
   console,

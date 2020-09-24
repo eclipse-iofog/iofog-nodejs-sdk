@@ -31,21 +31,27 @@ const timeStamp = () => {
 
 class Logger {
   constructor (fileName, dirName = '/var/log/iofog-microservices/') {
+    let logDestination = null
     try {
-    // Create the log directory if it does not exist
+      // Create the log directory if it does not exist
       if (!fs.existsSync(dirName)) {
         fs.mkdirSync(dirName)
       }
+      logDestination = pino.destination(path.resolve(dirName, fileName))
     } catch (e) { }
-    const logDestination = pino.destination(path.resolve(dirName, fileName))
+
     const fileLogger = pino(
       {
         ...defaultFormat,
         level: 'info'
       },
       logDestination)
-    process.on('SIGHUP', () => logDestination.reopen())
     this.logger = fileLogger
+    if (logDestination !== null) {
+      process.on('SIGHUP', () => logDestination.reopen())
+    } else {
+      this.warn(`Could not open the log file ${path.resolve(dirName, fileName)}. Reverting to std output logging`)
+    }
   }
 
   info (...message) {
