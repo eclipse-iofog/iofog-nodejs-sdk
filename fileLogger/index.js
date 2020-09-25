@@ -13,6 +13,10 @@
 const pino = require('pino')
 const path = require('path')
 const fs = require('fs')
+const logrotate = require('logrotator')
+
+// use the global rotator
+const rotator = logrotate.rotator
 
 const defaultFormat = {
   level: 'debug',
@@ -48,6 +52,12 @@ class Logger {
       logDestination)
     this.logger = fileLogger
     if (logDestination !== null) {
+      rotator.register(dirName + fileName, {
+        schedule: '5m',
+        size: '10m',
+        compress: true,
+        count: 5
+      })
       process.on('SIGHUP', () => logDestination.reopen())
     } else {
       this.warn(`Could not open the log file ${path.resolve(dirName, fileName)}. Reverting to std output logging`)
