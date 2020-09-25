@@ -18,7 +18,7 @@ const defaultFormat = {
   level: 'debug',
   messageKey: 'message',
   timestamp: () => {
-    return ', "timestamp":' + timeStamp()
+    return ', "timestamp":' + `"${timeStamp()}"`
   },
   formatters: {
     level: (level) => ({ level })
