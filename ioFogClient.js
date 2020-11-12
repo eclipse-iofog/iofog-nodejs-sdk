@@ -33,6 +33,7 @@ const OPCODE_ACK = 0xB
 const OPCODE_CONTROL_SIGNAL = 0xC
 const OPCODE_MSG = 0xD
 const OPCODE_RECEIPT = 0xE
+const OPCODE_EDGE_RESOURCE_SIGNAL = 0xF
 
 let ELEMENT_ID = 'NOT_DEFINED' // publisher's ID
 let SSL = false
@@ -237,9 +238,36 @@ exports.getConfig = function (cb) {
 }
 
 /**
+ * Gets new configurations for the container
+ *
+ * @param <Object> cb - object with callback functions (onError, onBadRequest, onEdgeResources)
+ */
+exports.getEdgeResources = function (cb) {
+  makeHttpRequest(
+    cb,
+    '/v2/edgeResources',
+    {
+      id: ELEMENT_ID
+    },
+    function getEdgeResourcesList (body) {
+      if (body.config) {
+        let edgeResourceList = []
+        try {
+          edgeResourceList = JSON.parse(body.edgeResources)
+        } catch (error) {
+          logger.error(error, 'There was an error parsing Edge Resources to JSON')
+        }
+        cb.onEdgeResources(edgeResourceList)
+      }
+    },
+    'get'
+  )
+}
+
+/**
  * Opens WebSocket Control connection to ioFog
  *
- * @param <Object> cb - object with callback functions (onError, onNewConfigSignal)
+ * @param <Object> cb - object with callback functions (onError, onNewConfigSignal, onEdgeResourceUpdatedSignal)
  */
 exports.wsControlConnection = function (cb) {
   openWSConnection(
@@ -248,9 +276,20 @@ exports.wsControlConnection = function (cb) {
     function wsHandleControlData (data, flags) {
       if (module.exports.byteUtils.isBinary(data) && data.length > 0) {
         const opcode = data[0]
-        if (opcode === OPCODE_CONTROL_SIGNAL) {
-          cb.onNewConfigSignal()
-          sendAck(wsControl)
+        switch (opcode) {
+          case OPCODE_CONTROL_SIGNAL: {
+            cb.onNewConfigSignal()
+            sendAck(wsControl)
+            break
+          }
+          case OPCODE_EDGE_RESOURCE_SIGNAL: {
+            cb.onEdgeResourceUpdatedSignal()
+            sendAck(wsControl)
+            break
+          }
+          default: {
+            break
+          }
         }
       }
     }
@@ -429,9 +468,10 @@ exports.getURL = function (protocol, url) {
  * @param <Object> json - JSON <Object> to send
  * @param <Function> onResponseCb - callback to process response body
  */
-function makeHttpRequest (listenerCb, relativeUrl, json, onResponseCb) {
+function makeHttpRequest (listenerCb, relativeUrl, json, onResponseCb, method) {
   const endpoint = exports.getURL(getHttpProtocol(), relativeUrl)
-  request.post(
+  const requestFn = request[method] || request.post
+  requestFn(
     {
       url: endpoint,
       headers: {
