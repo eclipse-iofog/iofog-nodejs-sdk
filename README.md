@@ -128,6 +128,26 @@ get container's config via REST call
   );
 ```
 
+get Agent's Edge Resources via REST call
+```javascript
+  ioFogClient.getEdgeResources(
+    {
+        'onBadRequest':
+            function(errorMsg) {
+                console.log(errorMsg);
+            },
+        'onEdgeResources':
+            function(edgeResources) {
+               console.log(edgeResources);
+            },
+        'onError':
+            function(error) {
+                console.log(error);
+            }
+    }
+  );
+```
+
 #### WebSocket(WS) calls
 open WS Message Channel to ioFog with callback that will be executed on open socket (in this example - sends new message via this channel)
 ```javascript
@@ -178,6 +198,10 @@ Open WS Control Channel to ioFog
         'onNewConfigSignal':
             function() {
                 console.log('New config is awaiting.');
+            },
+        'onEdgeResourceUpdatedSignal':
+            function() {
+                console.log('Agent\'s Edge Resources have been updated.');
             },
         'onError':
             function(error) {
