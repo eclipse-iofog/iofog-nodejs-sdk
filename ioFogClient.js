@@ -250,7 +250,7 @@ exports.getEdgeResources = function (cb) {
       id: ELEMENT_ID
     },
     function getEdgeResourcesList (body) {
-      if (body.config) {
+      if (body.edgeResources) {
         let edgeResourceList = []
         try {
           edgeResourceList = JSON.parse(body.edgeResources)
