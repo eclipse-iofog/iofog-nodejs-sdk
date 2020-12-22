@@ -328,7 +328,7 @@ exports.wsMessageConnection = function (onOpenSocketCb, cb) {
           size = data[2]
           let timestamp = 0
           if (size) {
-            timestamp = data.readUIntBE(pos, size)
+            timestamp = exports.byteUtils.readNumberFromBytes(data, pos, size)
           }
           cb.onMessageReceipt(messageId, timestamp)
           sendAck(wsMessage)
