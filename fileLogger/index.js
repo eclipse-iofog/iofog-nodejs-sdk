@@ -34,7 +34,7 @@ const timeStamp = () => {
 }
 
 class Logger {
-  constructor (fileName, dirName = '/var/log/iofog-microservices/') {
+  constructor (fileName, deviceId, dirName = '/var/log/iofog-microservices/', logLevel = process.env.IOFOG_LOG_LEVEL || 'info') {
     let logDestination = null
     try {
       // Create the log directory if it does not exist
@@ -47,7 +47,7 @@ class Logger {
     const fileLogger = pino(
       {
         ...defaultFormat,
-        level: 'info'
+        level: logLevel
       },
       logDestination)
     this.logger = fileLogger
@@ -61,6 +61,9 @@ class Logger {
       process.on('SIGHUP', () => logDestination.reopen())
     } else {
       this.warn(`Could not open the log file ${path.resolve(dirName, fileName)}. Reverting to std output logging`)
+    }
+    if (deviceId) {
+      this.logger = this.logger.child({ deviceId })
     }
   }
 
