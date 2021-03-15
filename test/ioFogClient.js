@@ -730,7 +730,7 @@ describe('ioFogClient', () => {
     })
 
     it('file Logger should warn when directory is not created', (done) => {
-      const fileLogger = new FileLogger('my-microservice.log', '/var/log/not-exits/')
+      const fileLogger = new FileLogger('my-microservice.log', 'DAA-DAAN-DEVICEID', '/var/log/not-exits/')
       expect(warnStub.args[0]).to.deep.equal([warning])
       fileLogger.info('I am just info')
       expect(infoStub.args[0]).to.deep.equal([info])
@@ -739,7 +739,7 @@ describe('ioFogClient', () => {
     })
 
     it('file Logger should create directory', (done) => {
-      const fileLogger = new FileLogger('my-microservice.log', dir)
+      const fileLogger = new FileLogger('my-microservice.log', 'DAA-DAAN-DEVICEID', dir)
       warnStub.neverCalledWith(warning)
       fileLogger.info('I am just info')
       expect(infoStub.args[0]).to.deep.equal([info])
@@ -747,7 +747,7 @@ describe('ioFogClient', () => {
     })
 
     it('file Logger should create nested directory', (done) => {
-      const fileLogger = new FileLogger('my-microservice.log', nestedDir)
+      const fileLogger = new FileLogger('my-microservice.log', 'DAA-DAAN-DEVICEID', nestedDir)
       warnStub.neverCalledWith(warning)
       fileLogger.info('I am just info')
       expect(infoStub.args[0]).to.deep.equal([info])
