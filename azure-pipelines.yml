@@ -37,7 +37,7 @@ stages:
   jobs:
   - job: Node_8
     pool:
-      vmImage: 'Ubuntu-16.04'
+      vmImage: 'Ubuntu-18.04'
     steps:
     - task: NodeTool@0
       inputs:
@@ -46,7 +46,7 @@ stages:
     - template: azure-templates/test.template.yml
   - job: Node_10
     pool:
-      vmImage: 'Ubuntu-16.04'
+      vmImage: 'Ubuntu-18.04'
     steps:
     - task: NodeTool@0
       inputs:
@@ -55,7 +55,7 @@ stages:
     - template: azure-templates/test.template.yml
   - job: Node_12
     pool:
-      vmImage: 'Ubuntu-16.04'
+      vmImage: 'Ubuntu-18.04'
     steps:
     - task: NodeTool@0
       inputs:
