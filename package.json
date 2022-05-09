@@ -1,6 +1,6 @@
 {
   "name": "@iofog/nodejs-sdk",
-  "version": "3.0.0-alpha1",
+  "version": "3.0.0",
   "description": "Native node.js SDK for Eclipse ioFog development.",
   "main": "ioFogClient.js",
   "scripts": {
