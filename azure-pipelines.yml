@@ -67,6 +67,8 @@ stages:
 - stage: Artifacts
   jobs:
   - job: 'Publish_Artifacts'
+    pool:
+      vmImage: 'Ubuntu-20.04'
     steps:
     - task: NodeTool@0
       inputs:
