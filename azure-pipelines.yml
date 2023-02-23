@@ -19,10 +19,12 @@ stages:
 - stage: Preflight
   jobs:
   - job: Build
+    pool:
+      vmImage: 'Ubuntu-20.04'
     steps:
     - task: NodeTool@0
       inputs:
-        versionSpec: '12.x'
+        versionSpec: '18.x'
       displayName: 'Install Node.js'
     - script: |
         npm audit
@@ -35,18 +37,9 @@ stages:
       displayName: 'Standardjs report'
 - stage: Test
   jobs:
-  - job: Node_12
-    pool:
-      vmImage: 'Ubuntu-18.04'
-    steps:
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '12.x'
-      displayName: 'Install Node.js'
-    - template: azure-templates/test.template.yml
   - job: Node_14
     pool:
-      vmImage: 'Ubuntu-18.04'
+      vmImage: 'Ubuntu-20.04'
     steps:
     - task: NodeTool@0
       inputs:
@@ -55,20 +48,31 @@ stages:
     - template: azure-templates/test.template.yml
   - job: Node_16
     pool:
-      vmImage: 'Ubuntu-18.04'
+      vmImage: 'Ubuntu-20.04'
     steps:
     - task: NodeTool@0
       inputs:
         versionSpec: '16.x'
       displayName: 'Install Node.js'
     - template: azure-templates/test.template.yml
-- stage: Artifacts
-  jobs:
-  - job: 'Publish_Artifacts'
+  - job: Node_18
+    pool:
+      vmImage: 'Ubuntu-20.04'
     steps:
     - task: NodeTool@0
       inputs:
-        versionSpec: '12.x'
+        versionSpec: '18.x'
+      displayName: 'Install Node.js'
+    - template: azure-templates/test.template.yml
+- stage: Artifacts
+  jobs:
+  - job: 'Publish_Artifacts'
+    pool:
+      vmImage: 'Ubuntu-20.04'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'
       displayName: 'Install Node.js'
     - script: |
         npm pack
