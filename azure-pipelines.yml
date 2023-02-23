@@ -19,6 +19,8 @@ stages:
 - stage: Preflight
   jobs:
   - job: Build
+    pool:
+      vmImage: 'Ubuntu-20.04'
     steps:
     - task: NodeTool@0
       inputs:
