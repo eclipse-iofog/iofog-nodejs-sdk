@@ -38,7 +38,9 @@ jobs:
       with:
         node-version: 18
     - run: npm ci
-    - run:  npm audit
+    - run: |
+        npm i -g better-npm-audit
+        npx better-npm-audit audit -p
     - run: npm run standard
 
   Tests:
@@ -71,12 +73,6 @@ jobs:
           ${{ runner.os }}-controller-node_modules-
     - run: npm ci
     - run: npm test
-    - name: Publish Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: always()
-      with:
-        files: |
-          *-results.xml
 
   Publish:
     needs: [Build, Tests]
