@@ -90,9 +90,10 @@ jobs:
         node-version: 18
 
     - run: npm pack
+    - run: ls
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-          name: sdk
-          path: iofog-nodejs-sdk-*.tgz
+        name: sdk
+        path: iofog-nodejs-*.tgz
