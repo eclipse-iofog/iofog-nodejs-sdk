@@ -27,7 +27,8 @@ stages:
         versionSpec: '18.x'
       displayName: 'Install Node.js'
     - script: |
-        npm audit
+        npm i -g better-npm-audit
+        npx better-npm-audit audit -p
       displayName: 'Audit'
     - script: |
         npm i
